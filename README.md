@@ -1,6 +1,6 @@
 # Il-2 Mission Planner Revived
 
-Welcome to the `il2missionplanner.com` Revived repository. This repository houses the code behind the Il-2 Mission Planner tool, a simple client-side javascript application based primarily on [Leaflet](http://leafletjs.com/).
+Welcome to the IL2 Mission Planner Revived repository. This repository houses the code behind the Il-2 Mission Planner web based tool, a simple client-side javascript application based primarily on [Leaflet](http://leafletjs.com/).
 
 Unlike the abandoned il2missionplanner.com project, this fork aims to remove the dependency on the API server (which only loses automatic JSON fetch functionality) and generally streamline installation for locally hosted setups based on my own working configuration (test server is currently private, sorry). Webdis/Redis will still be required if the application is built with streaming enabled (disable support TBD).
 
