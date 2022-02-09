@@ -18,4 +18,10 @@ Clone the repository. In the repository directory, run `npm ci` followed by `bow
 
 ## Setting up
 
+Clone the repository. In the repository directory, run `npm ci` followed by `bower install` to fetch dependencies. Edit conf/conf.json to match your desired setup. I recommend starting with the defaults (streaming false and api set to none) and just substituting in your domain name. Run `npm run dist` to generate the files to push to your web server and then fetch the tiles from the 'dist' folder of [Gavin's tiles repo](https://github.com/gavincabbage/tiles.il2missionplanner.com) and drop them into your webserver root (unless you configured otherwise). This last step will be automated at some point soon.
 
+### Streaming
+
+Use your package manager to download redis and webdis. Head to [Gavin's Stream Repo](https://github.com/gavincabbage/stream.il2missionplanner.com) and grab the load_scripts.sh and contents of the lua folder. Nothing else in that repo is especially necessary, and I believe the stock redis and webdis configs are fine for our purposes. Make sure redis and webdis are configured to start on boot and check for failures (I needed a delay after the redis start or webdis complained) then edit the webdis service file to execute the load_scripts.sh script as a POSTEXEC and make sure it can see the lua files.
+
+Now configure your web host of choice to reverse proxy the webdis commands on their port. I sent them to a WEBDIS subfolder for ease of integration with the map server.
