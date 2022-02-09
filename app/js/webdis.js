@@ -1,9 +1,12 @@
 module.exports = (function() {
-
+    var fs = require('fs');
     var util = require('./util.js');
 
+    var fs = require('fs');
+    var conf = JSON.parse(fs.readFileSync('dist/conf.json', 'utf8'));
+
     const
-        WEBDIS_HOST = 'https://api.il2missionplanner.com:80'
+        WEBDIS_HOST = conf.webdisUrl
     ;
 
     return {

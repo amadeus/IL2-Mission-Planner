@@ -4,7 +4,10 @@ if (!CustomEvent) {
   var CustomEvent = function(name, params){ return params;};
 }
 
+var fs = require('fs');
 var webdis = require('./webdis.js');
+
+var conf = JSON.parse(fs.readFileSync('dist/conf.json', 'utf8'));
 
 describe('webdis', function() {
 
@@ -34,7 +37,7 @@ describe('webdis', function() {
 
         it('must build subscribe url based on channel', function() {
             assert.equal(webdis._buildSubscribeUrl('test'),
-                    'https://api.il2missionplanner.com:80/SUBSCRIBE/test');
+                    conf.webdisUrl + '/SUBSCRIBE/test');
         });
     });
 
@@ -46,7 +49,7 @@ describe('webdis', function() {
 
         it('must build publish url based on channel and message', function() {
             assert.equal(webdis._buildPublishUrl('test', 'value'),
-                    'https://api.il2missionplanner.com:80/PUBLISH/test/value');
+                    conf.webdisUrl + '/PUBLISH/test/value');
         });
     });
 
@@ -58,7 +61,7 @@ describe('webdis', function() {
 
         it('must build publish url based on channel and message', function() {
             assert.equal(webdis._buildUnsubscribeUrl('test'),
-                    'https://api.il2missionplanner.com:80/UNSUBSCRIBE/test');
+                    conf.webdisUrl + '/UNSUBSCRIBE/test');
         });
     });
 

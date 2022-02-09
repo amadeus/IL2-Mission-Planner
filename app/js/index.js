@@ -36,7 +36,7 @@
         connected: false,
         changing: false,
         streamInfo: {},
-        streamingAvailable: webdis.init()
+        streamingAvailable: (conf.streaming === true) ? webdis.init() : false
     };
 
     // Patch a leaflet bug, see https://github.com/bbecquet/Leaflet.PolylineDecorator/issues/17
@@ -164,6 +164,19 @@
             marker.index = i;
             marker.on('click', markerClickHandlerFactory(marker));
             marker.addTo(map);
+        }
+        for (var i = 0; i < coords.length-1; i++) {
+            var routeMarker = L.circleMarker(coords[i], {
+                clickable: true,
+                radius: 1,
+                color: RED,
+                fillColor: RED,
+                opacity: FLIGHT_OPACITY,
+                fillOpacity: FLIGHT_OPACITY
+            });
+            routeMarker.parentId = id;
+            routeMarker.index = i;
+            routeMarker.addTo(map);
         }
         var endMarker = L.circleMarker(coords[coords.length-1], {
             clickable: false,
@@ -399,6 +412,10 @@
         } else {
             enableButtons(buttons);
         }
+        buttons = ['stream-button'];
+        if (conf.streaming !== true) {
+            disableButtons(buttons);
+        }
     }
 
     function clearMap() {
@@ -551,8 +568,8 @@
         });
     }
 
-    // if hash is not in map list, try to get json for that server
-    if (window.location.hash !== '' && !util.isAvailableMapHash(window.location.hash, content.maps)) {
+    // if hash is not in map list, try to get json for that server if API server is enabled
+    if (conf.apiUrl !== 'NONE' && window.location.hash !== '' && !util.isAvailableMapHash(window.location.hash, content.maps)) {
         var responseBody = null;
         var url = conf.apiUrl + '/servers/' + window.location.hash.substr(1);
         var xhr = util.buildGetXhr(url, function() {
@@ -811,23 +828,25 @@
                         fireAlreadyConnectedModal();
                     }
                     function fireStreamModal() {
-                        map.openModal({
-                            template: template,
-                            onShow: function(e) {
-                                document.getElementById('stream-start-button').focus();
-                                L.DomEvent.on(document.getElementById('stream-start-button'), 'click', function() {
-                                    e.modal.hide();
-                                    fireStartModal();
-                                });
-                                L.DomEvent.on(document.getElementById('stream-connect-button'), 'click', function() {
-                                    e.modal.hide();
-                                    fireConnectModal();
-                                });
-                                L.DomEvent.on(e.modal._container.querySelector('.modal-cancel'), 'click', function() {
-                                    e.modal.hide();
-                                });
-                            }
-                        });
+                        if (conf.streaming === true) {
+                            map.openModal({
+                                template: template,
+                                onShow: function(e) {
+                                    document.getElementById('stream-start-button').focus();
+                                    L.DomEvent.on(document.getElementById('stream-start-button'), 'click', function() {
+                                        e.modal.hide();
+                                        fireStartModal();
+                                    });
+                                    L.DomEvent.on(document.getElementById('stream-connect-button'), 'click', function() {
+                                        e.modal.hide();
+                                        fireConnectModal();
+                                    });
+                                    L.DomEvent.on(e.modal._container.querySelector('.modal-cancel'), 'click', function() {
+                                        e.modal.hide();
+                                    });
+                                }
+                            });
+                        }
                     }
                     function fireStartModal() {
                         map.openModal({

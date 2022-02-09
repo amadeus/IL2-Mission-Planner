@@ -1,18 +1,18 @@
 {
-  "name": "il2missionplanner.com",
-  "version": "1.0.0",
-  "description": "Il-2 Mission Planner",
+  "name": "il2missionplanner-revived",
+  "version": "2.0.0",
+  "description": "Il-2 Mission Planner Revived",
   "main": "index.html",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/gavincabbage/il2missionplanner.com.git"
+    "url": "git+https://github.com/serverror/il2missionplanner.com.git"
   },
   "author": "Gavin Cabbage <gavincabbage@gmail.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/gavincabbage/il2missionplanner.com/issues"
+    "url": "https://github.com/serverror/il2missionplanner.com/issues"
   },
-  "homepage": "https://github.com/gavincabbage/il2missionplanner.com#readme",
+  "homepage": "https://github.com/serverror/il2missionplanner.com#readme",
   "devDependencies": {
     "bower": "^1.8.12",
     "brfs": "^2.0.2",
@@ -26,7 +26,8 @@
     "mocha": "^8.3.0",
     "uglify-js": "^3.12.8",
     "watch-run": "^1.2.5",
-    "xhr-mock": "^1.6.0"
+    "xhr-mock": "^1.6.0",
+    "serve": "^13.0.2"
   },
   "scripts": {
     "coverage": "./node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha app/js/**/*.test.js",
@@ -47,12 +48,13 @@
     "dist": "npm run copy && npm run dist:js && npm run dist:css",
     "build": "bower install && npm run dist",
     "start": "npm run develop",
+    "watch:conf": "watch-run -p 'conf/*.json' npm run dist:js:dev",
     "watch:css": "watch-run -p 'app/css/**/*.css' npm run dist:css",
     "watch:index": "watch-run -p 'app/index.html' npm run copy:html",
     "watch:js": "watch-run -p 'app/js/**/*.js' npm run dist:js:dev",
     "watch:html": "watch-run -p 'app/html/**/*.html' npm run dist:js:dev",
     "watch:img": "watch-run -p 'app/img/dist/*' npm run copy:img",
-    "develop": "npm run clean && npm run dist:dev && concurrently \"npm run watch:css\" \"npm run watch:index\" \"npm run watch:js\" \"npm run watch:html\" \"npm run watch:img\" \"npm run reload\" \"serve dist\"",
+    "develop": "npm run clean && npm run dist:dev && concurrently \"npm run watch:conf\" \"npm run watch:css\" \"npm run watch:index\" \"npm run watch:js\" \"npm run watch:html\" \"npm run watch:img\" \"npm run reload\" \"serve dist\"",
     "dist:css": "cleancss -o dist/index.css app/css/index.css",
     "nodist": "npm run lint && npm test",
     "reload": "livereload ./dist/"

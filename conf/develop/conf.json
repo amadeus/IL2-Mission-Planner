@@ -1,3 +1,7 @@
 {
-  "apiUrl" : "https://api.il2missionplanner.com"
+  "apiUrl"    : "NONE",
+  "serverUrl" : "https://www.example.com",
+  "tilesUrl"  : "https://www.example.com",
+  "streaming" : false,
+  "webdisUrl" : "https://www.example.com/WEBDIS"
 }

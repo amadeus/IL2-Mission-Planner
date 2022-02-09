@@ -1,3 +1,6 @@
 {
-  "apiUrl": "http://127.0.0.1:9999"
+  "serverUrl" : "https://127.0.0.1",
+  "webdisUrl" : "https://127.0.0.1/WEBDIS",
+  "tilesUrl"  : "https://127.0.0.1"
+
 }

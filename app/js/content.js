@@ -2,6 +2,8 @@ module.exports = (function() {
 
     var fs = require('fs');
 
+    var conf = JSON.parse(fs.readFileSync('dist/conf.json', 'utf8'));
+
     // Edited original leaflet object
     var augmentedLeafletDrawLocal = {
         draw: {
@@ -23,7 +25,7 @@ module.exports = (function() {
     				polygon: 'Draw a polygon',
     				rectangle: 'Draw a rectangle',
     				circle: 'Draw a circle',
-    				marker: 'Mark a target'
+    				marker: 'Mark a point'
     			}
     		},
     		handlers: {
@@ -35,7 +37,7 @@ module.exports = (function() {
     			},
     			marker: {
     				tooltip: {
-    					start: 'Click to mark a target'
+    					start: 'Click to mark a point'
     				}
     			},
     			polygon: {
@@ -117,7 +119,7 @@ module.exports = (function() {
             defaultZoom: 3,
             minZoom: 2,
             maxZoom: 6,
-            tileUrl: 'https://tiles.il2missionplanner.com/stalingrad/{z}/{x}/{y}.png'
+            tileUrl: conf.tilesUrl + '/stalingrad/{z}/{x}/{y}.png'
             //tileUrl: 'file:///Users/fkc930/Development/personal/tiles.il2missionplanner.com/dist/stalingrad/{z}/{x}/{y}.png'
         },
         moscow: {
@@ -136,7 +138,7 @@ module.exports = (function() {
             defaultZoom: 3,
             minZoom: 2,
             maxZoom: 6,
-            tileUrl: 'https://tiles.il2missionplanner.com/moscow/{z}/{x}/{y}.png'
+            tileUrl: conf.tilesUrl + '/moscow/{z}/{x}/{y}.png'
             //tileUrl: 'file:///Users/fkc930/Development/personal/tiles.il2missionplanner.com/dist/moscow/{z}/{x}/{y}.png'
         },
         luki: {
@@ -155,7 +157,7 @@ module.exports = (function() {
             defaultZoom: 3,
             minZoom: 2,
             maxZoom: 6,
-            tileUrl: 'https://tiles.il2missionplanner.com/luki/{z}/{x}/{y}.png'
+            tileUrl: conf.tilesUrl + '/luki/{z}/{x}/{y}.png'
             //tileUrl: 'file:///Users/fkc930/Development/personal/tiles.il2missionplanner.com/dist/luki/{z}/{x}/{y}.png'
         },
         kuban: {
@@ -174,7 +176,7 @@ module.exports = (function() {
             defaultZoom: 4,
             minZoom: 2,
             maxZoom: 7,
-            tileUrl: 'https://tiles.il2missionplanner.com/kuban/{z}/{x}/{y}.png'
+            tileUrl: conf.tilesUrl + '/kuban/{z}/{x}/{y}.png'
             //tileUrl: 'http://localhost:5001/kuban/{z}/{x}/{y}.png'
         },
         rheinland: {
@@ -193,7 +195,7 @@ module.exports = (function() {
             defaultZoom: 4,
             minZoom: 2,
             maxZoom: 7,
-            tileUrl: 'https://tiles.il2missionplanner.com/rheinland/{z}/{x}/{y}.png'
+            tileUrl: conf.tilesUrl + '/rheinland/{z}/{x}/{y}.png'
             //tileUrl: 'http://localhost:5001/rheinland/{z}/{x}/{y}.png'
         },
         arras: {
@@ -212,7 +214,7 @@ module.exports = (function() {
             defaultZoom: 3,
             minZoom: 3,
             maxZoom: 5,
-            tileUrl: 'https://tiles.il2missionplanner.com/arras/{z}/{x}/{y}.png'
+            tileUrl: conf.tilesUrl + '/arras/{z}/{x}/{y}.png'
             //tileUrl: 'http://localhost:5001/arras/{z}/{x}/{y}.png'
         },
         prokhorovka: {
@@ -231,7 +233,7 @@ module.exports = (function() {
             defaultZoom: 4,
             minZoom: 3,
             maxZoom: 6,
-            tileUrl: 'https://tiles.il2missionplanner.com/prokhorovka/{z}/{x}/{y}.png'
+            tileUrl: conf.tilesUrl + '/prokhorovka/{z}/{x}/{y}.png'
             //tileUrl: 'http://localhost:5001/prokhorovka/{z}/{x}/{y}.png'
         }
     };
@@ -239,8 +241,8 @@ module.exports = (function() {
     var defaults = {
       flightName: 'New Flight',
       flightSpeed: 300,
-      pointType: 'marker',
-      pointColor: 'black',
+      pointType: 'point',
+      pointColor: 'red',
       pointName: 'New Marker'
     };
 
@@ -262,7 +264,7 @@ module.exports = (function() {
         maps: mapConfigs,
         default: defaults,
         validatinatorConfig: validatinatorConfig,
-        titleText: 'Il-2 Mission Planner',
+        titleText: 'Il-2 Mission Planner Revived',
         helpTooltip: 'How to use this tool',
         clearTooltip: 'Clear the map',
         exportTooltip: 'Export mission plan',
@@ -270,7 +272,7 @@ module.exports = (function() {
         gridHopTooltip: 'Jump to grid',
         missionHopTooltip: 'Jump to mission',
         settingsTooltip: 'Settings',
-        streamTooltip: 'Stream mission plan',
+        streamTooltip: (conf.streaming === true) ? 'Stream mission plan' : 'Streaming disabled on this server',
         flightModalTemplate: fs.readFileSync('app/html/flightModal.html', 'utf8'),
         flightLegModalTemplate: fs.readFileSync('app/html/flightLegModal.html', 'utf8'),
         confirmClearModalTemplate: fs.readFileSync('app/html/confirmClearModal.html', 'utf8'),
