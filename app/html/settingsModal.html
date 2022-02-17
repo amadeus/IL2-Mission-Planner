@@ -35,21 +35,34 @@
             <div class="row">
                 <div class="one column"></div>
                 <div class="three columns">
-                    <label class="" for="invertText">Dark</label>
+                    <label class="" for="selectStyle">Style (Changes will trigger a reload, save first)</label>
                 </div>
-                <div class="eight columns">
-                    <input id="invert-text-checkbox" type="checkbox" name="invertText">
-                </div>
+                <select class="eleven columns" id="style-select">
+                    <option value="cb">CB</option>
+                    <option value="classic">Classic</option>
+                </select>
             </div>
-            <div class="row">
-                <div class="one column"></div>
-                <div class="three columns">
-                    <label class="" for="showBackground">Background</label>
+            <fieldset>
+                <legend>Classic Style Settings</legend>
+                <div class="row">
+                    <div class="one column"></div>
+                    <div class="three columns">
+                        <label class="" for="invertText">Dark</label>
+                    </div>
+                    <div class="eight columns">
+                        <input id="invert-text-checkbox" type="checkbox" name="invertText">
+                    </div>
                 </div>
-                <div class="eight columns">
-                    <input id="text-background-checkbox" type="checkbox" name="showBackground" value="inverted">
+                <div class="row">
+                    <div class="one column"></div>
+                    <div class="three columns">
+                        <label class="" for="showBackground">Background</label>
+                    </div>
+                    <div class="eight columns">
+                        <input id="text-background-checkbox" type="checkbox" name="showBackground" value="inverted">
+                    </div>
                 </div>
-            </div>
+            </fieldset>
         </fieldset>
         <div class="row button-row">
             <button class="modal-ok button-primary" type="submit">Okay</button>

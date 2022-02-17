@@ -15,6 +15,7 @@
     const
         RED = '#9A070B',
         RED_FRONT = '#BD0101',
+        BLUE = '#3C6490',
         BLUE_FRONT = '#4D4B40',
         FLIGHT_OPACITY = 0.8,
         LINE_OPTIONS = {
@@ -30,6 +31,7 @@
 
     var state = {
         units: window.localStorage.getItem('units') || 'metric',
+        style: window.localStorage.getItem('style') || 'cb',
         colorsInverted: false,
         showBackground: true,
         streaming: false,
@@ -263,10 +265,37 @@
             target.on('click', targetClickHandlerFactory(target));
         }
         var nameCoords = L.latLng(coords.lat, coords.lng);
-        var nameMarker = L.marker(nameCoords, {
-            draggable: false,
-            icon: icons.textIconFactory(target.name, 'map-title target-title ' + getMapTextClasses(state))
-        });
+        if (state.style === 'classic')
+        {
+            var nameMarker = L.marker(nameCoords, {
+                draggable: false,
+                icon: icons.textIconFactory(target.name, 'map-title target-title-classic ' + getMapTextClasses(state))
+            });
+        }
+        else
+        {
+            if ((target.type === 'taw-af') || (target.type === 're-af'))
+            {
+                var nameMarker = L.marker(nameCoords, {
+                    draggable: false,
+                    icon: icons.textIconFactory(target.name, 'target-title-classic-centered map-text')
+                });
+            }
+            else
+            {
+                var markerColor = 'black';
+                if (target.color === 'red'){
+                    markerColor = RED;
+                }
+                else if (target.color === 'blue'){
+                    markerColor = BLUE;
+                }
+                var nameMarker = L.marker(nameCoords, {
+                    draggable: false,
+                    icon: icons.textIconFactory('<font color=' + markerColor + '>' + target.name + '</font>', 'map-title target-title-cb ' + getMapTextClasses(state))
+                });
+            }
+        }
         nameMarker.parentId = id;
         nameMarker.on('click', targetClickHandlerFactory(target));
         nameMarker.addTo(map);
@@ -388,6 +417,12 @@
         });
     }
 
+    function changeStyle(style) {
+        state.style = style;
+        window.localStorage.setItem('style', style);
+        window.location.reload();
+    }
+
     function disableButtons(buttonList) {
         for (var i = 0; i < buttonList.length; i++) {
             var element = document.getElementById(buttonList[i]);
@@ -480,10 +515,10 @@
 
     function getMapTextClasses(state) {
         var classes = 'map-text';
-        if (state.colorsInverted) {
+        if (state.colorsInverted && (state.style === 'classic')) {
             classes += ' inverted';
         }
-        if (!state.showBackground) {
+        if (!state.showBackground || (state.style === 'cb')) {
             classes += ' nobg';
         }
         return classes;
@@ -684,6 +719,10 @@
                             mapSelect.selectedIndex = selectedMapIndex;
                             var originalIndex = selectedMapIndex;
 
+                            var styleSelect = document.getElementById('style-select');
+                            var originalStyleValue = state.style;
+                            styleSelect.value = originalStyleValue;
+
                             var invertCheckbox = document.getElementById('invert-text-checkbox');
                             invertCheckbox.checked = state.colorsInverted;
 
@@ -702,6 +741,9 @@
                                     selectMap(mapConfig);
                                     selectedMapIndex = mapSelect.selectedIndex;
                                     publishMapState();
+                                }
+                                if (styleSelect.value !== originalStyleValue) {
+                                    changeStyle(styleSelect.value);
                                 }
                                 if (unitsSelect.value !== originalUnitValue) {
                                     changeUnits(unitsSelect.value);

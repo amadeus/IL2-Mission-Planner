@@ -80,8 +80,23 @@ div.flight-title {
     font-size: 1.5em;
 }
 
-div.target-title {
+div.target-title-cb {
+    margin-left: -85px !important;
+    margin-top: 20px !important;
+    font-family: monospace;
+    font-weight: 600;
+    font-size: 1.7em;
+    line-height: 100%;
+}
+
+div.target-title-classic {
     margin-left: 18px !important;
+    font-size: 1.3em;
+}
+
+div.target-title-classic-centered {
+    margin-left: -85px !important;
+    margin-top: 20px !important;
     font-size: 1.3em;
 }
 
