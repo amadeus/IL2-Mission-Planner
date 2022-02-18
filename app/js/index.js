@@ -278,7 +278,14 @@
             {
                 var nameMarker = L.marker(nameCoords, {
                     draggable: false,
-                    icon: icons.textIconFactory(target.name, 'target-title-classic-centered map-text')
+                    icon: icons.textIconFactory(target.name, 'target-title-classic-centered')
+                });
+            }
+            else if (target.type === 'point')
+            {
+                var nameMarker = L.marker(nameCoords, {
+                    draggable: false,
+                    icon: icons.textIconFactory(target.name, 'target-title-classic-centered ' + getMapTextClasses(state))
                 });
             }
             else
@@ -292,7 +299,7 @@
                 }
                 var nameMarker = L.marker(nameCoords, {
                     draggable: false,
-                    icon: icons.textIconFactory('<font color=' + markerColor + '>' + target.name + '</font>', 'map-title target-title-cb ' + getMapTextClasses(state))
+                    icon: icons.textIconFactory('<font color=' + markerColor + '>' + target.name + '</font>', 'map-title target-title-cb nobg')
                 });
             }
         }
@@ -515,10 +522,10 @@
 
     function getMapTextClasses(state) {
         var classes = 'map-text';
-        if (state.colorsInverted && (state.style === 'classic')) {
+        if ((state.colorsInverted) && (state.style === 'classic')) {
             classes += ' inverted';
         }
-        if (!state.showBackground || (state.style === 'cb')) {
+        if (!state.showBackground && (state.style === 'classic')) {
             classes += ' nobg';
         }
         return classes;
@@ -748,26 +755,28 @@
                                 if (unitsSelect.value !== originalUnitValue) {
                                     changeUnits(unitsSelect.value);
                                 }
-
-                                if (invertCheckbox.checked !== state.colorsInverted) {
-                                    state.colorsInverted = invertCheckbox.checked;
-                                    var textElements = document.getElementsByClassName('map-text');
-                                    for (var i = 0; i < textElements.length; i++) {
-                                        if (state.colorsInverted) {
-                                            textElements[i].classList.add('inverted');
-                                        } else {
-                                            textElements[i].classList.remove('inverted');
+                                if (state.style === 'classic')
+                                {
+                                    if (invertCheckbox.checked !== state.colorsInverted) {
+                                        state.colorsInverted = invertCheckbox.checked;
+                                        var textElements = document.getElementsByClassName('map-text');
+                                        for (var i = 0; i < textElements.length; i++) {
+                                            if (state.colorsInverted) {
+                                                textElements[i].classList.add('inverted');
+                                            } else {
+                                                textElements[i].classList.remove('inverted');
+                                            }
                                         }
                                     }
-                                }
-                                if (backgroundCheckbox.checked !== state.showBackground) {
-                                    state.showBackground = backgroundCheckbox.checked;
-                                    var textElements = document.getElementsByClassName('map-text');
-                                    for (var i = 0; i < textElements.length; i++) {
-                                        if (state.showBackground) {
-                                            textElements[i].classList.remove('nobg');
-                                        } else {
-                                            textElements[i].classList.add('nobg');
+                                    if (backgroundCheckbox.checked !== state.showBackground) {
+                                        state.showBackground = backgroundCheckbox.checked;
+                                        var textElements = document.getElementsByClassName('map-text');
+                                        for (var i = 0; i < textElements.length; i++) {
+                                            if (state.showBackground) {
+                                                textElements[i].classList.remove('nobg');
+                                            } else {
+                                                textElements[i].classList.add('nobg');
+                                            }
                                         }
                                     }
                                 }
