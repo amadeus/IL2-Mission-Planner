@@ -241,6 +241,7 @@ module.exports = (function() {
     var defaults = {
       flightName: 'New Flight',
       flightSpeed: 300,
+      flightColor: 'red',
       pointType: 'point',
       pointColor: 'red',
       pointName: 'New Marker'

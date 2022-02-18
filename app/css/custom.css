@@ -35,7 +35,7 @@ div.title-control {
 
 div.flight-leg {
     font-weight: 700;
-    font-size: 1.2em;
+    font-size: 1.0em;
 }
 
 div.map-text {
@@ -49,7 +49,7 @@ div.map-text {
 
 div.flight-leg.map-text {
     width: 158px;
-    text-align: left;
+    text-align: center;
 }
 
 div.map-text.inverted {
@@ -72,7 +72,7 @@ div.button-row {
 div.map-title {
     font-family: 'Courier', Courier, monospace;
     font-weight: 700;
-    font-size: 1.3em;
+    font-size: 1.2em;
     text-align: center;
 }
 
@@ -99,6 +99,14 @@ div.target-title-classic-centered {
     margin-left: -85px !important;
     margin-top: 20px !important;
     text-align: center;
+    font-size: 1.3em;
+}
+
+div.target-title-airfield {
+    margin-left: -85px !important;
+    margin-top: 20px !important;
+    text-align: center;
+    font-weight: 600;
     font-size: 1.3em;
 }
 
@@ -183,7 +191,7 @@ img.modal-image {
 @media(max-width: 1600px) {
 
     div.flight-leg {
-        font-size: 1.2em;
+        font-size: 1.0em;
     }
 
 }

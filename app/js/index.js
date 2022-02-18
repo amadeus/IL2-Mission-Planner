@@ -17,6 +17,7 @@
         RED_FRONT = '#BD0101',
         BLUE = '#3C6490',
         BLUE_FRONT = '#4D4B40',
+        BLACK = '#000000',
         FLIGHT_OPACITY = 0.8,
         LINE_OPTIONS = {
             color: RED,
@@ -64,7 +65,7 @@
                         pathOptions: {
                             opacity: 0,
                             fillOpacity: FLIGHT_OPACITY,
-                            color: RED
+                            color: route.color
                         }
                     })
                 }
@@ -171,8 +172,8 @@
             var routeMarker = L.circleMarker(coords[i], {
                 clickable: true,
                 radius: 1,
-                color: RED,
-                fillColor: RED,
+                color: route.color,
+                fillColor: route.color,
                 opacity: FLIGHT_OPACITY,
                 fillOpacity: FLIGHT_OPACITY
             });
@@ -183,8 +184,8 @@
         var endMarker = L.circleMarker(coords[coords.length-1], {
             clickable: false,
             radius: 3,
-            color: RED,
-            fillColor: RED,
+            color: route.color,
+            fillColor: route.color,
             opacity: FLIGHT_OPACITY,
             fillOpacity: FLIGHT_OPACITY
         });
@@ -213,11 +214,15 @@
         if (typeof route.name === 'undefined') {
             route.name = content.default.flightName;
         }
+        if (typeof route.color === 'undefined') {
+            route.color = content.default.flightColor;
+        }
         var initialSpeed = route.speed;
         var clickedOk = false;
         map.openModal({
             speed: route.speed,
             name: route.name,
+            color: route.color,
             template: content.flightModalTemplate,
             zIndex: 10000,
             onShow: function(e) {
@@ -237,6 +242,23 @@
                     route.name = document.getElementById('flight-name').value;
                     route.speed = parseInt(document.getElementById('flight-speed').value);
                     route.speedDirty = (route.speed !== initialSpeed);
+                    route.color = document.getElementById('flight-color').value;
+                    
+                    switch (route.color)
+                    {
+                        case 'blue':
+                            route.color = BLUE;
+                            break;
+                        case 'black':
+                            route.color = BLACK;
+                            break;
+                        case 'red':
+                        default:
+                            route.color = RED;
+                            break;
+                    }
+                    route.setStyle({color:route.color});
+
                     applyFlightPlanCallback(route, newFlight);
                 } else if (newFlight) {
                     drawnItems.removeLayer(route);
@@ -274,32 +296,32 @@
         }
         else
         {
+            var markerColor = BLACK;
+            if (target.color === 'red'){
+                markerColor = RED;
+            }
+            else if (target.color === 'blue'){
+                markerColor = BLUE;
+            }
             if ((target.type === 'taw-af') || (target.type === 're-af'))
             {
                 var nameMarker = L.marker(nameCoords, {
                     draggable: false,
-                    icon: icons.textIconFactory(target.name, 'target-title-classic-centered')
+                    icon: icons.textIconFactory('<font color=' + markerColor + '>' + target.name + '</font>', 'target-title-airfield')
                 });
             }
             else if (target.type === 'point')
             {
                 var nameMarker = L.marker(nameCoords, {
                     draggable: false,
-                    icon: icons.textIconFactory(target.name, 'target-title-classic-centered ' + getMapTextClasses(state))
+                    icon: icons.textIconFactory(target.name, 'target-title-classic-centered map-text flight-leg')
                 });
             }
             else
             {
-                var markerColor = 'black';
-                if (target.color === 'red'){
-                    markerColor = RED;
-                }
-                else if (target.color === 'blue'){
-                    markerColor = BLUE;
-                }
                 var nameMarker = L.marker(nameCoords, {
                     draggable: false,
-                    icon: icons.textIconFactory('<font color=' + markerColor + '>' + target.name + '</font>', 'map-title target-title-cb nobg')
+                    icon: icons.textIconFactory('<font color=' + markerColor + '>' + target.name + '</font>', 'target-title-cb nobg')
                 });
             }
         }
@@ -482,6 +504,7 @@
                 saveLayer.name = layer.name;
                 saveLayer.speed = layer.speed;
                 saveLayer.speeds = layer.speeds;
+                saveLayer.color = layer.color;
                 saveData.routes.push(saveLayer);
             } else if (util.isMarker(layer)) {
                 saveLayer.latLng = layer.getLatLng();
@@ -541,10 +564,16 @@
         if (saveData.routes) {
             for (var i = 0; i < saveData.routes.length; i++) {
                 var route = saveData.routes[i];
-                var newRoute = L.polyline(route.latLngs, LINE_OPTIONS);
+                if ((route.color !== BLUE) && (route.color !== BLACK) && (route.color !== RED))
+                {
+                    route.color = RED;
+                }
+                var options = {color: route.color, weight: 2, opacity: FLIGHT_OPACITY};
+                var newRoute = L.polyline(route.latLngs, options);
                 newRoute.name = route.name;
                 newRoute.speed = route.speed;
                 newRoute.speeds = route.speeds;
+                newRoute.color = route.color;
                 drawnItems.addLayer(newRoute);
                 applyFlightPlanCallback(newRoute);
             }
