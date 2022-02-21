@@ -18,7 +18,10 @@ Clone the repository. In the repository directory, run `npm ci` followed by `bow
 
 ## Setting up
 
-Clone the repository. In the repository directory, run `npm ci` followed by `bower install` to fetch dependencies. Edit conf/conf.json to match your desired setup. I recommend starting with the defaults (streaming false and api set to none) and just substituting in your domain name. Run `npm run dist` to generate the files to push to your web server and then fetch the tiles from the 'dist' folder of [the tiles repo](https://github.com/ServError/tiles.il2missionplanner.com) and drop them into your webserver root (unless you configured otherwise). This last step will be automated at some point soon.
+Clone the repository. In the repository directory, run `npm ci` followed by `bower install` to fetch dependencies. Edit conf/conf.json to match your desired setup. I recommend starting with the defaults (streaming false and api set to none) and just substituting in your domain name. Run `npm run dist` to generate the files to push to your web server and optionally run `npm run tiles` to fetch the tiles from the 'dist' folder of [the tiles repo](https://github.com/ServError/tiles.il2missionplanner.com) and drop them into the tiles subdirectory of the output. Tiles only need to be fetched once.
+
+### Updating
+Simply run `npm run dist` again after a `git pull` and merge the updated output files with your webroot.
 
 ### Streaming
 
