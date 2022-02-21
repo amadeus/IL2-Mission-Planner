@@ -62,6 +62,10 @@ module.exports = (function() {
             return typeof layer.getLatLngs !== 'undefined';
         },
 
+        isCircle: function(layer) {
+            return typeof layer.getBounds !== 'undefined';
+        },
+
         isMarker: function(layer) {
             return typeof layer.getLatLng !== 'undefined';
         },

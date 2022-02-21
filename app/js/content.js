@@ -244,7 +244,8 @@ module.exports = (function() {
       flightColor: 'red',
       pointType: 'point',
       pointColor: 'red',
-      pointName: 'New Marker'
+      pointName: 'New Marker',
+      circleColor: 'red'
     };
 
     var validatinatorConfig = {
@@ -265,7 +266,7 @@ module.exports = (function() {
         maps: mapConfigs,
         default: defaults,
         validatinatorConfig: validatinatorConfig,
-        titleText: 'Il-2 Mission Planner Revived',
+        titleText: 'Il-2 Mission Planner <a href="https://github.com/ServError/il2missionplanner.com">Revived</a>',
         helpTooltip: 'How to use this tool',
         clearTooltip: 'Clear the map',
         exportTooltip: 'Export mission plan',
@@ -276,6 +277,7 @@ module.exports = (function() {
         streamTooltip: (conf.streaming === true) ? 'Stream mission plan' : 'Streaming disabled on this server',
         flightModalTemplate: fs.readFileSync('app/html/flightModal.html', 'utf8'),
         flightLegModalTemplate: fs.readFileSync('app/html/flightLegModal.html', 'utf8'),
+        circleModalTemplate: fs.readFileSync('app/html/circleModal.html', 'utf8'),
         confirmClearModalTemplate: fs.readFileSync('app/html/confirmClearModal.html', 'utf8'),
         helpModalTemplate: fs.readFileSync('app/html/helpModal.html', 'utf8'),
         pointModalTemplate: fs.readFileSync('app/html/pointModal.html', 'utf8'),

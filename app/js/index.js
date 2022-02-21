@@ -19,6 +19,11 @@
         BLUE_FRONT = '#4D4B40',
         BLACK = '#000000',
         FLIGHT_OPACITY = 0.8,
+        CIRCLE_OPTIONS = {
+            color: RED,
+            weight: 2,
+            opacity: FLIGHT_OPACITY
+        },
         LINE_OPTIONS = {
             color: RED,
             weight: 2,
@@ -200,6 +205,67 @@
         nameMarker.on('click', routeClickHandlerFactory(route));
         nameMarker.addTo(map);
         publishMapState();
+    }
+
+    function applyCircle(circle) {
+        if (state.changing || state.connected) {
+            return;
+        }
+        if (typeof circle.color === 'undefined') {
+            circle.options.color = content.default.circleColor;
+        }
+        var clickedOk = false;
+        map.openModal({
+            color: circle.options.color,
+            fillOpacity: circle.options.fillOpacity,
+            template: content.circleModalTemplate,
+            zIndex: 10000,
+
+            onShow: function(e) {
+                var element = document.getElementById('circleColor');
+                element.focus();
+                L.DomEvent.on(e.modal._container.querySelector('.modal-ok'), 'click', function() {
+                    clickedOk = true;
+                    e.modal.hide();
+                });
+                L.DomEvent.on(e.modal._container.querySelector('.modal-cancel'), 'click', function() {
+                    e.modal.hide();
+                });
+            },
+            onHide: function(e) {
+                if (clickedOk) {
+                    circle.options.color = document.getElementById('circleColor').value;
+                    var circleFillCheckbox = document.getElementById('circle-fill-checkbox');
+                    
+                    switch (circle.options.color)
+                    {
+                        case 'blue':
+                            circle.options.color = BLUE;
+                            break;
+                        case 'black':
+                            circle.options.color = BLACK;
+                            break;
+                        case 'red':
+                        default:
+                            circle.options.color = RED;
+                            break;
+                    }
+                    circle.setStyle({color:circle.options.color});
+                    if (!circleFillCheckbox.checked)
+                    {
+                        circle.options.fillOpacity = 0;
+                        circle.setStyle({fillOpacity: circle.options.fillOpacity});
+                    }
+                    else
+                    {
+                        circle.options.fillOpacity = 0.2;
+                    }
+                } else {
+                    drawnItems.removeLayer(circle);
+                }
+                checkButtonsDisabled();
+            }
+        });
     }
 
     function applyFlightPlan(route) {
@@ -495,7 +561,8 @@
             mapHash: window.location.hash,
             units: state.units,
             routes: [],
-            points: []
+            points: [],
+            circles: []
         };
         drawnItems.eachLayer(function(layer) {
             var saveLayer = {};
@@ -506,6 +573,12 @@
                 saveLayer.speeds = layer.speeds;
                 saveLayer.color = layer.color;
                 saveData.routes.push(saveLayer);
+            } else if (util.isCircle(layer)) {
+                saveLayer.latLng = layer.getLatLng();
+                saveLayer.radius = layer.getRadius();
+                saveLayer.color = layer.options.color;
+                saveLayer.fillOpacity = layer.options.fillOpacity;
+                saveData.circles.push(saveLayer);
             } else if (util.isMarker(layer)) {
                 saveLayer.latLng = layer.getLatLng();
                 saveLayer.name = layer.name;
@@ -590,6 +663,18 @@
                 newPoint.notes = point.notes;
                 drawnItems.addLayer(newPoint);
                 applyTargetInfoCallback(newPoint);
+            }
+        }
+        if (saveData.circles) {
+            for (var i = 0; i < saveData.circles.length; i++) {
+                var circle = saveData.circles[i];
+                var newCircle = L.circle(circle.latLng, circle.radius);
+                newCircle.options.color = circle.color;
+                newCircle.options.fillOpacity = circle.fillOpacity;
+                newCircle.options.opacity = FLIGHT_OPACITY;
+                newCircle.options.weight = 2;
+
+                drawnItems.addLayer(newCircle);
             }
         }
         if (saveData.frontline) {
@@ -682,7 +767,9 @@
         draw: {
             polygon: false,
             rectangle: false,
-            circle: false,
+            circle: {
+                shapeOptions: CIRCLE_OPTIONS
+            },
             polyline: {
                 showLength: false,
                 shapeOptions: LINE_OPTIONS
@@ -1136,6 +1223,8 @@
             applyFlightPlan(e.layer);
         } else if (e.layerType === 'marker') {
             applyTargetInfo(e.layer);
+        } else if (e.layerType === 'circle') {
+            applyCircle(e.layer);
         }
         checkButtonsDisabled();
     });

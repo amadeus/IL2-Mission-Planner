@@ -15,6 +15,11 @@
     font-family: FontAwesome;
 }
 
+.leaflet-draw-draw-circle:before {
+    content: "\f111"; /* fa-circle */
+    font-family: FontAwesome;
+}
+
 .leaflet-draw-draw-marker:before {
     content: "\f041"; /* fa-map-marker */
     font-family: FontAwesome;
