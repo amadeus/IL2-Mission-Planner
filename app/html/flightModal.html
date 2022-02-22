@@ -1,24 +1,33 @@
 <div id="flight-modal" class="container">
     <div class="row">
-        <h2><span class='fa fa-plane modal-icon'></span> Configure Flight</h2>
+        <h2><span class='fa fa-plane modal-icon'></span> Configure Flight / Line</h2>
     </div>
     <form onsubmit="return false;">
         <div class="row">
-            <label for="flight-name">Flight name</label>
-            <input id="flight-name" class="half-width" value="{name}" placeholder="name"></input>
-        </div>
-        <div class="row">
-            <label for="flight-speed">Average speed</label>
-            <input id="flight-speed" class="half-width" value="{speed}"></input>
-        </div>
-        <div class="row">
-            <label for="flight-color">Flight color</label>
+            <label for="flight-color">Color</label>
             <select class="eleven columns" id="flight-color">
                 <option value="red">Red</option>
                 <option value="black">Black</option>
                 <option value="blue">Blue</option>
             </select>
         </div>
+        <div class="row">
+            <div class="five columns">
+                <label class="checkbox-label" for="flight-plan-checkbox">Flight Plan?</label>
+                <input id="flight-plan-checkbox" name="flight-plan-checkbox" type="checkbox" checked>
+            </div>
+        </div>
+        <fieldset>
+            <legend>Flight Plan Settings</legend>
+            <div class="row">
+                <label for="flight-name">Flight name</label>
+                <input id="flight-name" class="half-width" value="{name}" placeholder="name"></input>
+            </div>
+            <div class="row">
+                <label for="flight-speed">Average speed</label>
+                <input id="flight-speed" class="half-width" value="{speed}"></input>
+            </div>
+        </fieldset>
         <div class="row buttom-row">
             <button class="modal-ok button-primary" type="submit">Okay</button>
             <button class="modal-cancel" type="button">Cancel</button>

@@ -66,6 +66,10 @@ module.exports = (function() {
             return typeof layer.getBounds !== 'undefined';
         },
 
+        isPolygon: function(layer) { // Always check polygon before polyline
+            return ((typeof layer.getLatLngs !== 'undefined') && (layer.options.fillOpacity !== -1));
+        },
+
         isMarker: function(layer) {
             return typeof layer.getLatLng !== 'undefined';
         },

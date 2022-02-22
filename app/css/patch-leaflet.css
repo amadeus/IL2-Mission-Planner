@@ -20,6 +20,11 @@
     font-family: FontAwesome;
 }
 
+.leaflet-draw-draw-polygon:before {
+    content: "\f006"; /* fa-polygon */
+    font-family: FontAwesome;
+}
+
 .leaflet-draw-draw-marker:before {
     content: "\f041"; /* fa-map-marker */
     font-family: FontAwesome;

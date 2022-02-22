@@ -27,8 +27,8 @@
         LINE_OPTIONS = {
             color: RED,
             weight: 2,
-            opacity: FLIGHT_OPACITY
-
+            opacity: FLIGHT_OPACITY,
+            fillOpacity: -1
         }
     ;
 
@@ -117,14 +117,75 @@
                     if (!circleFillCheckbox.checked)
                     {
                         circle.options.fillOpacity = 0;
-                        circle.setStyle({fillOpacity: circle.options.fillOpacity});
                     }
                     else
                     {
                         circle.options.fillOpacity = 0.2;
                     }
+                    circle.setStyle({fillOpacity: circle.options.fillOpacity});
                 } else {
                     drawnItems.removeLayer(circle);
+                }
+                checkButtonsDisabled();
+            }
+        });
+    }
+
+    function applyPolygon(polygon) {
+        if (state.changing || state.connected) {
+            return;
+        }
+        if (typeof polygon.color === 'undefined') {
+            polygon.options.color = content.default.polygonColor;
+        }
+        var clickedOk = false;
+        map.openModal({
+            color: polygon.options.color,
+            fillOpacity: polygon.options.fillOpacity,
+            template: content.polygonModalTemplate,
+            zIndex: 10000,
+
+            onShow: function(e) {
+                var element = document.getElementById('polygonColor');
+                element.focus();
+                L.DomEvent.on(e.modal._container.querySelector('.modal-ok'), 'click', function() {
+                    clickedOk = true;
+                    e.modal.hide();
+                });
+                L.DomEvent.on(e.modal._container.querySelector('.modal-cancel'), 'click', function() {
+                    e.modal.hide();
+                });
+            },
+            onHide: function(e) {
+                if (clickedOk) {
+                    polygon.options.color = document.getElementById('polygonColor').value;
+                    var polygonFillCheckbox = document.getElementById('polygon-fill-checkbox');
+                    
+                    switch (polygon.options.color)
+                    {
+                        case 'blue':
+                            polygon.options.color = BLUE;
+                            break;
+                        case 'black':
+                            polygon.options.color = BLACK;
+                            break;
+                        case 'red':
+                        default:
+                            polygon.options.color = RED;
+                            break;
+                    }
+                    polygon.setStyle({color:polygon.options.color});
+                    if (!polygonFillCheckbox.checked)
+                    {
+                        polygon.options.fillOpacity = 0;
+                    }
+                    else
+                    {
+                        polygon.options.fillOpacity = 0.2;
+                    }
+                    polygon.setStyle({fillOpacity: polygon.options.fillOpacity});
+                } else {
+                    drawnItems.removeLayer(polygon);
                 }
                 checkButtonsDisabled();
             }
@@ -299,6 +360,7 @@
             speed: route.speed,
             name: route.name,
             color: route.color,
+            isFlightPlan: route.isFlightPlan,
             template: content.flightModalTemplate,
             zIndex: 10000,
             onShow: function(e) {
@@ -315,6 +377,8 @@
             },
             onHide: function(e) {
                 if (clickedOk) {
+                    var flightPlanCheckbox = document.getElementById('flight-plan-checkbox');
+                    route.isFlightPlan = flightPlanCheckbox.checked;
                     route.name = document.getElementById('flight-name').value;
                     route.speed = parseInt(document.getElementById('flight-speed').value);
                     route.speedDirty = (route.speed !== initialSpeed);
@@ -334,8 +398,10 @@
                             break;
                     }
                     route.setStyle({color:route.color});
-
-                    applyFlightPlanCallback(route, newFlight);
+                    if (route.isFlightPlan)
+                    {
+                        applyFlightPlanCallback(route, newFlight);
+                    }
                 } else if (newFlight) {
                     drawnItems.removeLayer(route);
                 } else {
@@ -572,16 +638,23 @@
             units: state.units,
             routes: [],
             points: [],
-            circles: []
+            circles: [],
+            polygons: []
         };
         drawnItems.eachLayer(function(layer) {
             var saveLayer = {};
-            if (util.isLine(layer)) {
+            if (util.isPolygon(layer)) {
+                saveLayer.latLngs = layer.getLatLngs();
+                saveLayer.color = layer.options.color;
+                saveLayer.fillOpacity = layer.options.fillOpacity;
+                saveData.polygons.push(saveLayer);
+            } else if (util.isLine(layer)) {
                 saveLayer.latLngs = layer.getLatLngs();
                 saveLayer.name = layer.name;
                 saveLayer.speed = layer.speed;
                 saveLayer.speeds = layer.speeds;
                 saveLayer.color = layer.color;
+                saveLayer.isFlightPlan = layer.isFlightPlan;
                 saveData.routes.push(saveLayer);
             } else if (util.isCircle(layer)) {
                 saveLayer.latLng = layer.getLatLng();
@@ -652,14 +725,18 @@
                 {
                     route.color = RED;
                 }
-                var options = {color: route.color, weight: 2, opacity: FLIGHT_OPACITY};
+                var options = {color: route.color, weight: 2, opacity: FLIGHT_OPACITY, fillOpacity: -1};
                 var newRoute = L.polyline(route.latLngs, options);
                 newRoute.name = route.name;
                 newRoute.speed = route.speed;
                 newRoute.speeds = route.speeds;
                 newRoute.color = route.color;
+                newRoute.isFlightPlan = route.isFlightPlan;
                 drawnItems.addLayer(newRoute);
-                applyFlightPlanCallback(newRoute);
+                if (newRoute.isFlightPlan)
+                {
+                    applyFlightPlanCallback(newRoute);
+                }
             }
         }
         if (saveData.points) {
@@ -686,6 +763,16 @@
                 newCircle.options.weight = 2;
 
                 drawnItems.addLayer(newCircle);
+            }
+        }
+        if (saveData.polygons) {
+            for (var i = 0; i < saveData.polygons.length; i++) {
+                var polygon = saveData.polygons[i];
+                var options = {color: polygon.color, weight: 2, opacity: FLIGHT_OPACITY, fillOpacity: polygon.fillOpacity};
+                var newPolygon = L.polygon(polygon.latLngs, options);
+                newPolygon.options.color = polygon.color;
+                newPolygon.options.fillOpacity = polygon.fillOpacity;
+                drawnItems.addLayer(newPolygon);
             }
         }
         if (saveData.frontline) {
@@ -777,10 +864,13 @@
 
     drawControl = new L.Control.Draw({
         draw: {
-            polygon: false,
+            polygon: {
+                showLength: false,
+                shapeOptions: LINE_OPTIONS
+            },
             rectangle: false,
             circle: false,/*{
-                showRadius: true,
+                showRadius: false,
                 shapeOptions: CIRCLE_OPTIONS
             },*/
             polyline: {
@@ -1238,6 +1328,8 @@
             applyTargetInfo(e.layer);
         } else if (e.layerType === 'circle') {
             applyCircle(e.layer);
+        } else if (e.layerType === 'polygon') {
+            applyPolygon(e.layer);
         }
         checkButtonsDisabled();
     });
@@ -1251,7 +1343,9 @@
     map.on('draw:edited', function(e) {
         deleteAssociatedLayers(e.layers);
         e.layers.eachLayer(function(layer) {
-            if (util.isLine(layer)) {
+            if (util.isPolygon(layer)) {
+                
+            } else if (util.isLine(layer)) {
                 layer.wasEdited = (layer.getLatLngs().length-1 !== layer.speeds.length);
                 applyFlightPlanCallback(layer);
             } else if (util.isCircle(layer)) {

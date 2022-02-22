@@ -21,7 +21,7 @@ module.exports = (function() {
     				text: 'Delete last point'
     			},
     			buttons: {
-    				polyline: 'Map a flight',
+    				polyline: 'Map a flight / Draw a polyline',
     				polygon: 'Draw a polygon',
     				rectangle: 'Draw a rectangle',
     				circle: 'Draw a circle',
@@ -50,9 +50,9 @@ module.exports = (function() {
     			polyline: {
     				error: '<strong>Error:</strong> shape edges cannot cross!',
     				tooltip: {
-    					start: 'Click to start a flight plan',
-    					cont: 'Click to continue the flight plan',
-    					end: 'Click last point to finish flight plan'
+    					start: 'Click to start a flight plan / polyline',
+    					cont: 'Click to continue the flight plan / polyline',
+    					end: 'Click last point to finish flight plan / polyline'
     				}
     			},
     			rectangle: {
@@ -245,7 +245,8 @@ module.exports = (function() {
       pointType: 'point',
       pointColor: 'red',
       pointName: 'New Marker',
-      circleColor: 'red'
+      circleColor: 'red',
+      polygonColor: 'red'
     };
 
     var validatinatorConfig = {
@@ -278,6 +279,7 @@ module.exports = (function() {
         flightModalTemplate: fs.readFileSync('app/html/flightModal.html', 'utf8'),
         flightLegModalTemplate: fs.readFileSync('app/html/flightLegModal.html', 'utf8'),
         circleModalTemplate: fs.readFileSync('app/html/circleModal.html', 'utf8'),
+        polygonModalTemplate: fs.readFileSync('app/html/polygonModal.html', 'utf8'),
         confirmClearModalTemplate: fs.readFileSync('app/html/confirmClearModal.html', 'utf8'),
         helpModalTemplate: fs.readFileSync('app/html/helpModal.html', 'utf8'),
         pointModalTemplate: fs.readFileSync('app/html/pointModal.html', 'utf8'),
