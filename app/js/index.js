@@ -53,11 +53,82 @@
     // Patch leaflet content with custom language
     L.drawLocal = content.augmentedLeafletDrawLocal;
 
+    // TODO: Fix for circles being ruined because our map is interpreted as crossing over poles
+
+    // CRS.Simple kind of sucks in 0.7.7, lets extend it in case we need to change it
+    L.CRS.XY = L.Util.extend({}, L.CRS.Simple, {
+        code: 'XY',
+        projection: L.Projection.LonLat,
+        transformation: new L.Transformation(1, 0, -1, 0),
+        infinite: true
+    });
+
     // Initialize form validation
     var V = new Validatinator(content.validatinatorConfig);
 
     function mapIsEmpty() {
       return drawnItems.getLayers().length === 0 && frontline.getLayers().length === 0;
+    }
+
+    function applyCircle(circle) {
+        if (state.changing || state.connected) {
+            return;
+        }
+        if (typeof circle.color === 'undefined') {
+            circle.options.color = content.default.circleColor;
+        }
+        var clickedOk = false;
+        map.openModal({
+            color: circle.options.color,
+            fillOpacity: circle.options.fillOpacity,
+            template: content.circleModalTemplate,
+            zIndex: 10000,
+
+            onShow: function(e) {
+                var element = document.getElementById('circleColor');
+                element.focus();
+                L.DomEvent.on(e.modal._container.querySelector('.modal-ok'), 'click', function() {
+                    clickedOk = true;
+                    e.modal.hide();
+                });
+                L.DomEvent.on(e.modal._container.querySelector('.modal-cancel'), 'click', function() {
+                    e.modal.hide();
+                });
+            },
+            onHide: function(e) {
+                if (clickedOk) {
+                    circle.options.color = document.getElementById('circleColor').value;
+                    var circleFillCheckbox = document.getElementById('circle-fill-checkbox');
+                    
+                    switch (circle.options.color)
+                    {
+                        case 'blue':
+                            circle.options.color = BLUE;
+                            break;
+                        case 'black':
+                            circle.options.color = BLACK;
+                            break;
+                        case 'red':
+                        default:
+                            circle.options.color = RED;
+                            break;
+                    }
+                    circle.setStyle({color:circle.options.color});
+                    if (!circleFillCheckbox.checked)
+                    {
+                        circle.options.fillOpacity = 0;
+                        circle.setStyle({fillOpacity: circle.options.fillOpacity});
+                    }
+                    else
+                    {
+                        circle.options.fillOpacity = 0.2;
+                    }
+                } else {
+                    drawnItems.removeLayer(circle);
+                }
+                checkButtonsDisabled();
+            }
+        });
     }
 
     function newFlightDecorator(route) {
@@ -205,67 +276,6 @@
         nameMarker.on('click', routeClickHandlerFactory(route));
         nameMarker.addTo(map);
         publishMapState();
-    }
-
-    function applyCircle(circle) {
-        if (state.changing || state.connected) {
-            return;
-        }
-        if (typeof circle.color === 'undefined') {
-            circle.options.color = content.default.circleColor;
-        }
-        var clickedOk = false;
-        map.openModal({
-            color: circle.options.color,
-            fillOpacity: circle.options.fillOpacity,
-            template: content.circleModalTemplate,
-            zIndex: 10000,
-
-            onShow: function(e) {
-                var element = document.getElementById('circleColor');
-                element.focus();
-                L.DomEvent.on(e.modal._container.querySelector('.modal-ok'), 'click', function() {
-                    clickedOk = true;
-                    e.modal.hide();
-                });
-                L.DomEvent.on(e.modal._container.querySelector('.modal-cancel'), 'click', function() {
-                    e.modal.hide();
-                });
-            },
-            onHide: function(e) {
-                if (clickedOk) {
-                    circle.options.color = document.getElementById('circleColor').value;
-                    var circleFillCheckbox = document.getElementById('circle-fill-checkbox');
-                    
-                    switch (circle.options.color)
-                    {
-                        case 'blue':
-                            circle.options.color = BLUE;
-                            break;
-                        case 'black':
-                            circle.options.color = BLACK;
-                            break;
-                        case 'red':
-                        default:
-                            circle.options.color = RED;
-                            break;
-                    }
-                    circle.setStyle({color:circle.options.color});
-                    if (!circleFillCheckbox.checked)
-                    {
-                        circle.options.fillOpacity = 0;
-                        circle.setStyle({fillOpacity: circle.options.fillOpacity});
-                    }
-                    else
-                    {
-                        circle.options.fillOpacity = 0.2;
-                    }
-                } else {
-                    drawnItems.removeLayer(circle);
-                }
-                checkButtonsDisabled();
-            }
-        });
     }
 
     function applyFlightPlan(route) {
@@ -605,7 +615,8 @@
                 maxZoom: selectedMapConfig.maxZoom,
                 noWrap: true,
                 tms: true,
-                continuousWorld: true
+                continuousWorld: true,
+                bounds: calc.tileBounds(selectedMapConfig)
             }).addTo(map);
             map.setMaxBounds(calc.maxBounds(selectedMapConfig));
             map.setView(calc.center(selectedMapConfig), selectedMapConfig.defaultZoom);
@@ -742,7 +753,7 @@
     selectedMapIndex = mapConfig.selectIndex;
 
     map = L.map('map', {
-        crs: L.CRS.Simple,
+        crs: L.CRS.XY,
         attributionControl: false
     });
 
@@ -751,7 +762,8 @@
         maxZoom: mapConfig.maxZoom,
         noWrap: true,
         tms: true,
-        continuousWorld: true
+        continuousWorld: true,
+        bounds: calc.tileBounds(mapConfig)
     }).addTo(map);
 
     map.setView(calc.center(mapConfig), mapConfig.defaultZoom);
@@ -767,9 +779,10 @@
         draw: {
             polygon: false,
             rectangle: false,
-            circle: {
+            circle: false,/*{
+                showRadius: true,
                 shapeOptions: CIRCLE_OPTIONS
-            },
+            },*/
             polyline: {
                 showLength: false,
                 shapeOptions: LINE_OPTIONS
@@ -1241,6 +1254,8 @@
             if (util.isLine(layer)) {
                 layer.wasEdited = (layer.getLatLngs().length-1 !== layer.speeds.length);
                 applyFlightPlanCallback(layer);
+            } else if (util.isCircle(layer)) {
+                
             } else if (util.isMarker(layer)) {
                 applyTargetInfoCallback(layer);
             }

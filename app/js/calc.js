@@ -54,6 +54,13 @@ module.exports = (function() {
                 [mapConfig.latMax + BORDER, mapConfig.lngMax + BORDER]
             ];
         },
+        
+        tileBounds: function(mapConfig) {
+            return [
+                [mapConfig.latMin + 0.01, mapConfig.lngMin + 0.01], // Fix for attempted out of bounds loads
+                [mapConfig.latMax, mapConfig.lngMax]
+            ];
+        },
 
         center: function(mapConfig) {
             return [mapConfig.latMax / 2, mapConfig.lngMax / 2];
