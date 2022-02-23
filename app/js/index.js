@@ -713,7 +713,7 @@
         window.localStorage.setItem('units', units);
         var parentChanged = false;
         map.eachLayer(function (layer) {
-            if (layer.options && layer.options.speed) {
+            if (layer.options && typeof(layer.options.speed)!=='undefined') {
                 if (!parentChanged) {
                     var parentRoute = drawnItems.getLayer(layer.parentId);
                     parentRoute.speeds = parentRoute.speeds.map((speed) => calc.convertSpeed(speed, units));
@@ -722,12 +722,12 @@
                 }
                 layer.options.altDiff = calc.convertDistance(layer.options.altDiff, units);
                 layer.options.speed = calc.convertSpeed(layer.options.speed, units);
-                layer.options.gndDistance = calc.convertDistance(layer.options.gndDistance, units);
+                layer.options.gndDistance = parseFloat(calc.convertDistance(layer.options.gndDistance, units)).toFixed(1);
                 applyCustomFlightLegCallback(layer);
             }
         });
         map.eachLayer(function (layer) {
-            if (layer.options && layer.options.altitude) {
+            if (layer.options && typeof(layer.options.altitude)!=='undefined') {
                 if (!parentChanged) {
                     var parentRoute = drawnItems.getLayer(layer.parentId);
                     parentRoute.speeds = parentRoute.speeds.map((speed) => calc.convertSpeed(speed, units));
