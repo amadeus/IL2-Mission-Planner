@@ -1,7 +1,7 @@
 {
   "apiUrl"    : "NONE",
-  "serverUrl" : "https://serverror.github.io/il2missionplanner.com",
-  "tilesUrl"  : "https://serverror.github.io/il2missionplanner.com/tiles",
+  "serverUrl" : "https://serverror.github.io/IL2-Mission-Planner",
+  "tilesUrl"  : "https://serverror.github.io/IL2-Mission-Planner/tiles",
   "streaming" : false,
-  "webdisUrl" : "https://serverror.github.io/il2missionplanner.com/WEBDIS"
+  "webdisUrl" : "https://serverror.github.io/IL2-Mission-Planner/WEBDIS"
 }
