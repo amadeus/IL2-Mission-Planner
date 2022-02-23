@@ -268,7 +268,7 @@ module.exports = (function() {
         maps: mapConfigs,
         default: defaults,
         validatinatorConfig: validatinatorConfig,
-        titleText: 'Il-2 Mission Planner <a href="https://github.com/ServError/il2missionplanner.com">Revived</a>',
+        titleText: 'IL-2 Mission Planner <a href="https://github.com/ServError/il2missionplanner.com">Revived</a>',
         helpTooltip: 'How to use this tool',
         clearTooltip: 'Clear the map',
         exportTooltip: 'Export mission plan',

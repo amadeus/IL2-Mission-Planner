@@ -27,8 +27,7 @@
         LINE_OPTIONS = {
             color: RED,
             weight: 2,
-            opacity: FLIGHT_OPACITY,
-            fillOpacity: -1
+            opacity: FLIGHT_OPACITY
         }
     ;
 
@@ -138,6 +137,7 @@
         if (typeof polygon.color === 'undefined') {
             polygon.options.color = content.default.polygonColor;
         }
+        polygon.options.isPolygon = true;
         var clickedOk = false;
         map.openModal({
             color: polygon.options.color,
@@ -778,6 +778,7 @@
 
     function clearMap() {
         drawnItems.clearLayers();
+        drawnMarkers.clearLayers();
         frontline.clearLayers();
         hideChildLayers();
         hiddenLayers.clearLayers();
@@ -835,7 +836,9 @@
             window.location.hash = selectedMapConfig.hash;
             deleteAssociatedLayers(drawnItems);
             drawnItems.clearLayers();
+            drawnMarkers.clearLayers();
             hiddenLayers.clearLayers();
+            frontline.clearLayers();
             map.removeLayer(mapTiles);
             mapTiles = L.tileLayer(selectedMapConfig.tileUrl, {
                 minZoom: selectedMapConfig.minZoom,
@@ -879,7 +882,7 @@
                 {
                     route.color = RED;
                 }
-                var options = {color: route.color, weight: 2, opacity: FLIGHT_OPACITY, fillOpacity: -1};
+                var options = {color: route.color, weight: 2, opacity: FLIGHT_OPACITY};
                 var newRoute = L.polyline(route.latLngs, options);
                 newRoute.name = route.name;
                 newRoute.speed = route.speed;
@@ -926,6 +929,7 @@
                 var polygon = saveData.polygons[i];
                 var options = {color: polygon.color, weight: 2, opacity: FLIGHT_OPACITY, fillOpacity: polygon.fillOpacity};
                 var newPolygon = L.polygon(polygon.latLngs, options);
+                newPolygon.options.isPolygon = true;
                 newPolygon.options.color = polygon.color;
                 newPolygon.options.fillOpacity = polygon.fillOpacity;
                 drawnItems.addLayer(newPolygon);
@@ -978,18 +982,56 @@
         });
     }
 
-    // if hash is not in map list, try to get json for that server if API server is enabled
-    if (conf.apiUrl !== 'NONE' && window.location.hash !== '' && !util.isAvailableMapHash(window.location.hash, content.maps)) {
+    // if hash is not in map list, try some other methods to get a json
+    if (window.location.hash !== "" && !util.isAvailableMapHash(window.location.hash, content.maps)) {
         var responseBody = null;
-        var url = conf.apiUrl + '/servers/' + window.location.hash.substr(1);
-        var xhr = util.buildGetXhr(url, function() {
-            if (xhr.readyState === 4) {
-                responseBody = JSON.parse(xhr.responseText);
-                importMapState(responseBody.data);
-                fitViewToMission();
-                checkButtonsDisabled();
+        var url;
+
+        if (conf.apiUrl === 'NONE')
+        {
+            // Example of using a proxy to dodge CORS and HTTPS requirements
+            var cors_api_host = 'cors-anywhere.herokuapp.com';
+            var cors_api_url = 'https://' + cors_api_host + '/';
+
+            if (window.location.hash.substring(0, 10) === '#json-url=') {
+                url = /*cors_api_url +*/ window.location.hash.slice(10);
             }
-        });
+            else
+            {
+                switch(window.location.hash){
+                    case "#combatbox":
+                        url = ""; // Must be https if we're serving from https
+                        break;
+                    case "#virtualpilots":
+                        url = ""; // TBD, must be https if we're serving from https
+                        break;
+                    default:
+                        // Check repository of mission jsons for a matching name
+                        url = "";
+                        window.location.hash = "";
+                }
+            }
+        }
+        else  // try to get json for that server if API server is enabled
+        {
+            url = conf.apiUrl + '/servers/' + window.location.hash.substr(1);
+        }
+
+        if(url !== ""){
+            var xhr = util.buildGetXhr(url, function() {
+                if (xhr.readyState === 4){
+                    if (xhr.response !== "") {
+                        responseBody = JSON.parse(xhr.responseText);
+                        importMapState(responseBody);
+                        fitViewToMission();
+                        checkButtonsDisabled();
+                    }
+                    else {
+                        window.location.hash = "";
+                    }
+                }
+            });
+        }
     }
 
     mapConfig = util.getSelectedMapConfig(window.location.hash , content.maps);

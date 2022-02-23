@@ -80,7 +80,7 @@ module.exports = (function() {
         },
 
         isPolygon: function(layer) { // Always check polygon before polyline
-            return ((typeof layer.getLatLngs !== 'undefined') && (layer.options.fillOpacity !== -1));
+            return typeof layer.options.isPolygon !== 'undefined';
         },
 
         isMarker: function(layer) {
