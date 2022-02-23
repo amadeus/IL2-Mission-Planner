@@ -4,7 +4,11 @@ module.exports = (function() {
         SECONDS_IN_HOUR = 3600,
         BORDER = 5,
         MILE_PER_KM = 0.6213712,
-        KM_PER_MILE = 1.609344
+        KM_PER_MILE = 1.609344,
+        KM_PER_METER = 0.001,
+        MILE_PER_FT = 0.00018939,
+        FT_PER_METER = 3.2808399,
+        METER_PER_FT = 0.3048
     ;
 
     return {
@@ -90,7 +94,17 @@ module.exports = (function() {
 
         convertDistance: function(value, units) {
             var factor = units === 'metric' ? KM_PER_MILE : MILE_PER_KM;
-            return (value * factor).toFixed(1);
+            return (value * factor).toFixed(4);
+        },
+
+        convertAltitude: function(value, units) {
+            var factor = units === 'metric' ? METER_PER_FT : FT_PER_METER;
+            return (value * factor).toFixed(2);
+        },
+
+        altitudeUnitAdjust: function(value, units) {
+            var factor = units === 'metric' ? KM_PER_METER : MILE_PER_FT;
+            return (value * factor).toFixed(4);
         },
     };
 })();

@@ -12,13 +12,13 @@ If you'd like to report a bug or request an enhancement, please [open an issue](
 
 Interested in contributing to this tool? Feel free to fork the project and open a PR when you're ready to contribute back. The code is under the MIT license, so you can basically do whatever you like with it.
 
-## Development Setup
-
-Clone the repository. In the repository directory, run `npm ci` followed by `bower install` to fetch dependencies. Then run `npm run develop` and navigate to the dist index file in a web browser (e.g. `file:///path/to/dist/index.html`) to access the site.
-
 ## Setting up
 
-Clone the repository. In the repository directory, run `npm ci` followed by `bower install` to fetch dependencies. Edit conf/conf.json to match your desired setup. I recommend starting with the defaults (streaming false and api set to none) and just substituting in your domain name. Run `npm run dist` to generate the files to push to your web server and optionally run `npm run tiles` to fetch the tiles from the 'dist' folder of [the tiles repo](https://github.com/ServError/tiles.il2missionplanner.com) and drop them into the tiles subdirectory of the output. Tiles only need to be fetched once.
+Clone the repository. In the repository directory, run `git submodule init` followed by `git submodule update -r`. Then run `npm ci` followed by `bower install` to fetch dependencies. Edit conf/conf.json to match your desired setup. I recommend starting with the defaults (streaming false and api set to none) and just substituting in your domain name. Run `npm run dist` to generate the files to push to your web server and optionally run `npm run tiles` to fetch the tiles from the 'dist' folder of [the tiles repo](https://github.com/ServError/tiles.il2missionplanner.com) and drop them into the tiles subdirectory of the output. Tiles only need to be fetched once.
+
+## Live Development
+
+Run `npm run develop` and navigate to the dist index file in a web browser (e.g. `file:///path/to/dist/index.html`) to access the site. Beware, this action wipes the dist folder.
 
 ### Updating
 Simply run `npm run dist` again after a `git pull` and merge the updated output files with your webroot.

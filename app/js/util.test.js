@@ -116,23 +116,23 @@ describe('util', function() {
         });
     });
 
-    describe('util.defaultSpeedArray', function() {
+    describe('util.defaultPopulateArray', function() {
 
         it('must be defined', function() {
-            assert.isDefined(util.defaultSpeedArray);
+            assert.isDefined(util.defaultPopulateArray);
         });
 
         var tests = [
             {
                 given: {
-                    speed: 300,
+                    val: 300,
                     count: 5
                 },
                 expectedLength: 5
             },
             {
                 given: {
-                    speed: 300,
+                    val: 300,
                     count: 0
                 },
                 expectedLength: 0
@@ -140,8 +140,8 @@ describe('util', function() {
         ]
 
         tests.forEach(function(test) {
-            it('must return array of length '+test.expectedLength+' given '+test.given.speed+' and '+test.given.count, function() {
-                assert.lengthOf(util.defaultSpeedArray(test.given.speed, test.given.count), test.expectedLength);
+            it('must return array of length '+test.expectedLength+' given '+test.given.val+' and '+test.given.count, function() {
+                assert.lengthOf(util.defaultPopulateArray(test.given.val, test.given.count), test.expectedLength);
             });
         });
     });

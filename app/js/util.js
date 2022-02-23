@@ -5,11 +5,13 @@ module.exports = (function() {
     const UNIT_MAP = {
         metric: {
             distance: 'km',
-            speed: 'kph'
+            speed: 'kph',
+            altitude: 'm',
         },
         imperial: {
             distance: 'mi',
             speed: 'mph',
+            altitude: 'ft',
         }
     };
 
@@ -39,12 +41,12 @@ module.exports = (function() {
             return maps.stalingrad;
         },
 
-        defaultSpeedArray: function(speed, count) {
-            var speedArray = [];
+        defaultPopulateArray: function(val, count) {
+            var array = [];
             for (var i = 0; i < count; i++) {
-                speedArray.push(speed);
+                array.push(val);
             }
-            return speedArray;
+            return array;
         },
 
         formatFlightLegMarker: function(distance, heading, speed, time, units) {
@@ -56,6 +58,17 @@ module.exports = (function() {
                 calc.pad(calc.invertHeading(heading), 3) +'&deg; <br/> ' + 
                 speed + UNIT_MAP[units].speed + ' | ' + 
                 'ETE ' + time;
+        },
+
+        formatFlightStartMarker: function(name, altitude, units) {
+            units = units || 'metric';
+            return  name + '<br />' +
+                altitude + UNIT_MAP[units].altitude;
+        },
+        
+        formatFlightTurnMarker: function(altitude, units) {
+            units = units || 'metric';
+            return Math.round(altitude) + UNIT_MAP[units].altitude;
         },
 
         isLine: function(layer) {

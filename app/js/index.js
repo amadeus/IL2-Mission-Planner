@@ -32,7 +32,7 @@
         }
     ;
 
-    var map, mapTiles, mapConfig, drawnItems, hiddenLayers, frontline,
+    var map, mapTiles, mapConfig, drawnItems, drawnMarkers, hiddenLayers, frontline,
             drawControl, selectedMapIndex;
 
     var state = {
@@ -210,6 +210,74 @@
         });
     }
 
+    // dont forget to adjust the distance in both the leg before and after the marker
+    function applyCustomFlightTurn(marker) {
+        if (state.changing || state.connected) {
+            return;
+        }
+        var parentRoute = drawnItems.getLayer(marker.parentId);
+        map.openModal({
+            altitude: marker.options.altitude,
+            template: content.flightTurnModalTemplate,
+            zIndex: 10000,
+            onShow: function(e) {
+                var element = document.getElementById('flight-turn-altitude');
+                element.focus();
+                element.select();
+                L.DomEvent.on(e.modal._container.querySelector('.modal-ok'), 'click', function() {
+                    if (V.passes('flight-turn-form')) {
+                        var newAltitude = parseInt(element.value);
+                        parentRoute.altitudes[marker.index] = newAltitude;
+                        marker.options.altitude = newAltitude;
+                        if (marker.priorMarkerId !== 0)
+                        {
+                            var altDiff = calc.altitudeUnitAdjust(Math.abs(parentRoute.altitudes[marker.index] - parentRoute.altitudes[marker.index-1]), state.units);
+                            //var gndDistance = mapConfig.scale * calc.distance(coords[marker.index], coords[marker.index-1]);
+                            //var airDistance = parseFloat(altDiff) + parseFloat(gndDistance);
+
+                            var priorMarker = drawnMarkers.getLayer(marker.priorMarkerId);
+                            priorMarker.options.altDiff = altDiff;
+                            applyCustomFlightLegCallback(priorMarker);
+                        }
+                        if (marker.followingMarkerId !== 0)
+                        {
+                            altDiff = calc.altitudeUnitAdjust(Math.abs(parentRoute.altitudes[marker.index] - parentRoute.altitudes[marker.index+1]), state.units);
+                            //gndDistance = mapConfig.scale * calc.distance(coords[marker.index], coords[marker.index-1]);
+                            //airDistance = parseFloat(altDiff) + parseFloat(gndDistance);
+
+                            var followingMarker = drawnMarkers.getLayer(marker.followingMarkerId);
+                            followingMarker.options.altDiff = altDiff;
+                            applyCustomFlightLegCallback(followingMarker);
+                        }
+                        
+                        applyCustomFlightTurnCallback(marker);
+                        e.modal.hide();
+                    } else {
+                        var errorElement = document.getElementById('flight-turn-error');
+                        var units = state.units === 'metric' ? 'meters' : 'feet';
+                        errorElement.innerHTML = 'Please input a valid altitude in' + units + '.';
+                        util.removeClass(errorElement, 'hidden-section');
+                        errorElement.focus();
+                    }
+                });
+                L.DomEvent.on(e.modal._container.querySelector('.modal-cancel'), 'click', function() {
+                    e.modal.hide();
+                });
+            }
+        });
+    }
+
+    function applyCustomFlightTurnCallback(marker) {
+        var newContent = util.formatFlightTurnMarker(marker.options.altitude, state.units);
+        if (marker.priorMarkerId !== 0){
+            marker.setIcon(icons.textIconFactory(newContent, 'flight-turn ' + getMapTextClasses(state)));
+        }
+        else {
+            marker.setIcon(icons.textIconFactory(newContent, 'flight-start-alt ' + getMapTextClasses(state)));
+        }
+        publishMapState();
+    }
+
     function applyCustomFlightLeg(marker) {
         if (state.changing || state.connected) {
             return;
@@ -246,9 +314,9 @@
     }
 
     function applyCustomFlightLegCallback(marker) {
-        marker.options.time = util.formatTime(calc.time(marker.options.speed, marker.options.distance));
+        marker.options.time = util.formatTime(calc.time(marker.options.speed, parseFloat(marker.options.gndDistance) + parseFloat(marker.options.altDiff)));
         var newContent = util.formatFlightLegMarker(
-                marker.options.distance, 
+                marker.options.gndDistance, 
                 marker.options.heading, 
                 marker.options.speed, 
                 marker.options.time,
@@ -276,6 +344,15 @@
                 applyCustomFlightLeg(clickedMarker);
             };
         };
+        const turnClickHandlerFactory = function (clickedMarker) {
+            return function() {
+                if (state.changing || state.connected) {
+                    return;
+                }
+                applyCustomFlightTurn(clickedMarker);
+            };
+        };
+
         if (newFlight) {
             route.on('click', routeClickHandlerFactory(route));
         }
@@ -283,18 +360,42 @@
         var coords = route.getLatLngs();
         var decorator = newFlightDecorator(route);
         decorator.parentId = id;
-        decorator.addTo(map);
+        decorator.addTo(drawnMarkers);
         if (typeof route.speeds === 'undefined' || route.speedDirty || route.wasEdited) {
-            route.speeds = util.defaultSpeedArray(route.speed, coords.length-1);
+            route.speeds = util.defaultPopulateArray(route.speed, coords.length-1);
+            route.speedDirty = false;
         }
+        if (typeof route.altitudes === 'undefined' || route.altitudeDirty || route.wasEdited) {
+            route.altitudes = util.defaultPopulateArray(route.altitude, coords.length);
+            route.altitudeDirty = false;
+        }
+
+        var turnCoords = L.latLng(coords[0].lat, coords[0].lng);
+        var turnMarkerContent = util.formatFlightTurnMarker(route.altitudes[0], state.units);
+        var turnMarker = L.marker(turnCoords, {
+            altitude: route.altitudes[0],
+            draggable: false,
+            icon: icons.textIconFactory(turnMarkerContent, ' flight-start-alt ' + getMapTextClasses(state))
+        });
+        turnMarker.parentId = id;
+        turnMarker.priorMarkerId = 0;
+
+        turnMarker.index = 0;
+        turnMarker.on('click', turnClickHandlerFactory(turnMarker));
+        turnMarker.addTo(drawnMarkers);
+        turnMarker.followingMarkerId = turnMarker._leaflet_id + 1;
+
         for (var i = 0; i < coords.length-1; i++) {
-            var distance = mapConfig.scale * calc.distance(coords[i], coords[i+1]);
+            var altDiff = calc.altitudeUnitAdjust(Math.abs(route.altitudes[i] - route.altitudes[i+1]), state.units);
+            var gndDistance = mapConfig.scale * calc.distance(coords[i], coords[i+1]);
+            var airDistance = parseFloat(altDiff) + parseFloat(gndDistance);
             var heading = calc.heading(coords[i], coords[i+1]);
             var midpoint = calc.midpoint(coords[i], coords[i+1]);
-            var time = util.formatTime(calc.time(route.speeds[i], distance));
-            var markerContent = util.formatFlightLegMarker(distance, heading, route.speeds[i], time, state.units);
+            var time = util.formatTime(calc.time(route.speeds[i], airDistance));
+            var markerContent = util.formatFlightLegMarker(gndDistance, heading, route.speeds[i], time, state.units);
             var marker =  L.marker(midpoint, {
-                distance: distance,
+                altDiff: altDiff,
+                gndDistance: gndDistance,
                 heading: heading,
                 time: time,
                 speed: route.speeds[i],
@@ -303,8 +404,30 @@
             marker.parentId = id;
             marker.index = i;
             marker.on('click', markerClickHandlerFactory(marker));
-            marker.addTo(map);
+            marker.addTo(drawnMarkers);
+
+            turnCoords = L.latLng(coords[i + 1].lat, coords[i + 1].lng);
+            turnMarkerContent = util.formatFlightTurnMarker(route.altitudes[i+1], state.units);
+            turnMarker = L.marker(turnCoords, {
+                altitude: route.altitudes[i],
+                draggable: false,
+                icon: icons.textIconFactory(turnMarkerContent, ' flight-turn ' + getMapTextClasses(state))
+            });
+            turnMarker.parentId = id;
+            turnMarker.priorMarkerId = marker._leaflet_id;
+            if (i !== coords.length-2) 
+            {
+                turnMarker.followingMarkerId = marker._leaflet_id + 2; // +1 is us, +2 is next
+            }
+            else
+            {
+                turnMarker.followingMarkerId = 0;
+            }
+            turnMarker.index = i + 1;
+            turnMarker.on('click', turnClickHandlerFactory(turnMarker));
+            turnMarker.addTo(drawnMarkers);
         }
+
         for (var i = 0; i < coords.length-1; i++) {
             var routeMarker = L.circleMarker(coords[i], {
                 clickable: true,
@@ -316,8 +439,9 @@
             });
             routeMarker.parentId = id;
             routeMarker.index = i;
-            routeMarker.addTo(map);
+            routeMarker.addTo(drawnMarkers);
         }
+
         var endMarker = L.circleMarker(coords[coords.length-1], {
             clickable: false,
             radius: 3,
@@ -327,15 +451,17 @@
             fillOpacity: FLIGHT_OPACITY
         });
         endMarker.parentId = id;
-        endMarker.addTo(map);
+        endMarker.addTo(drawnMarkers);
+
         var nameCoords = L.latLng(coords[0].lat, coords[0].lng);
+        //var nameMarkerContent = util.formatFlightStartMarker(route.name, route.altitudes[0], state.units);
         var nameMarker = L.marker(nameCoords, {
             draggable: false,
-            icon: icons.textIconFactory(route.name, 'map-title flight-titles ' + getMapTextClasses(state))
+            icon: icons.textIconFactory(/*nameMarkerContent*/ route.name, 'map-title flight-titles ' + getMapTextClasses(state))
         });
         nameMarker.parentId = id;
         nameMarker.on('click', routeClickHandlerFactory(route));
-        nameMarker.addTo(map);
+        nameMarker.addTo(drawnMarkers);
         publishMapState();
     }
 
@@ -344,6 +470,10 @@
             return;
         }
         var newFlight = false;
+        if (typeof route.altitude === 'undefined') {
+            route.altitude = content.default.flightAltitude;
+            newFlight = true;
+        }
         if (typeof route.speed === 'undefined') {
             route.speed = content.default.flightSpeed;
             newFlight = true;
@@ -355,8 +485,10 @@
             route.color = content.default.flightColor;
         }
         var initialSpeed = route.speed;
+        var initialAltitude = route.altitude;
         var clickedOk = false;
         map.openModal({
+            altitude: route.altitude,
             speed: route.speed,
             name: route.name,
             color: route.color,
@@ -383,6 +515,8 @@
                     route.speed = parseInt(document.getElementById('flight-speed').value);
                     route.speedDirty = (route.speed !== initialSpeed);
                     route.color = document.getElementById('flight-color').value;
+                    route.altitude = document.getElementById('flight-altitude').value;
+                    route.altitudeDirty = (route.altitude !== initialAltitude);
                     
                     switch (route.color)
                     {
@@ -402,9 +536,13 @@
                     {
                         applyFlightPlanCallback(route, newFlight);
                     }
+                    else
+                    {
+                        route.clickable = false;
+                    }
                 } else if (newFlight) {
                     drawnItems.removeLayer(route);
-                } else {
+                } else if (route.isFlightPlan) {
                     applyFlightPlanCallback(route, newFlight);
                 }
                 checkButtonsDisabled();
@@ -469,11 +607,11 @@
         }
         nameMarker.parentId = id;
         nameMarker.on('click', targetClickHandlerFactory(target));
-        nameMarker.addTo(map);
+        nameMarker.addTo(drawnMarkers);
         if (target.notes !== '') {
             target.bindLabel(target.notes, {
                 direction: 'left'
-            }).addTo(map);
+            }).addTo(drawnMarkers);
         }
         publishMapState();
     }
@@ -579,11 +717,25 @@
                 if (!parentChanged) {
                     var parentRoute = drawnItems.getLayer(layer.parentId);
                     parentRoute.speeds = parentRoute.speeds.map((speed) => calc.convertSpeed(speed, units));
+                    parentRoute.altitudes = parentRoute.altitudes.map((altitude) => calc.convertAltitude(altitude, units));
                     parentChanged = true;
                 }
+                layer.options.altDiff = calc.convertDistance(layer.options.altDiff, units);
                 layer.options.speed = calc.convertSpeed(layer.options.speed, units);
-                layer.options.distance = calc.convertDistance(layer.options.distance, units);
+                layer.options.gndDistance = calc.convertDistance(layer.options.gndDistance, units);
                 applyCustomFlightLegCallback(layer);
+            }
+        });
+        map.eachLayer(function (layer) {
+            if (layer.options && layer.options.altitude) {
+                if (!parentChanged) {
+                    var parentRoute = drawnItems.getLayer(layer.parentId);
+                    parentRoute.speeds = parentRoute.speeds.map((speed) => calc.convertSpeed(speed, units));
+                    parentRoute.altitudes = parentRoute.altitudes.map((altitude) => calc.convertAltitude(altitude, units));
+                    parentChanged = true;
+                }
+                layer.options.altitude = calc.convertAltitude(layer.options.altitude, units);
+                applyCustomFlightTurnCallback(layer);
             }
         });
     }
@@ -653,6 +805,8 @@
                 saveLayer.name = layer.name;
                 saveLayer.speed = layer.speed;
                 saveLayer.speeds = layer.speeds;
+                saveLayer.altitude = layer.altitude;
+                saveLayer.altitudes = layer.altitudes;
                 saveLayer.color = layer.color;
                 saveLayer.isFlightPlan = layer.isFlightPlan;
                 saveData.routes.push(saveLayer);
@@ -730,6 +884,8 @@
                 newRoute.name = route.name;
                 newRoute.speed = route.speed;
                 newRoute.speeds = route.speeds;
+                newRoute.altitude = route.altitude;
+                newRoute.altitudes = route.altitudes;
                 newRoute.color = route.color;
                 newRoute.isFlightPlan = route.isFlightPlan;
                 drawnItems.addLayer(newRoute);
@@ -858,6 +1014,8 @@
 
     drawnItems = L.featureGroup();
     map.addLayer(drawnItems);
+    drawnMarkers = L.featureGroup();
+    map.addLayer(drawnMarkers);
     frontline = L.featureGroup();
     map.addLayer(frontline);
     hiddenLayers = L.featureGroup();

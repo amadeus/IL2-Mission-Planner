@@ -38,6 +38,20 @@ div.flight-leg {
     font-size: 1.0em;
 }
 
+div.flight-turn {
+    margin-left: -20px !important;
+    margin-top: 10px !important;
+    font-weight: 700;
+    font-size: 1.0em;
+}
+
+div.flight-start-alt {
+    margin-left: -20px !important;
+    margin-top: 22px !important;
+    font-weight: 700;
+    font-size: 1.0em;
+}
+
 div.map-text {
     text-align: center;
     height: unset !important;
@@ -49,6 +63,18 @@ div.map-text {
 
 div.flight-leg.map-text {
     width: 158px;
+    text-align: center;
+}
+
+div.flight-turn.map-text {
+    height: auto !important;
+    width: auto !important;
+    text-align: center;
+}
+
+div.flight-start-alt.map-text {
+    height: auto !important;
+    width: auto !important;
     text-align: center;
 }
 

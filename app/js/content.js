@@ -241,6 +241,7 @@ module.exports = (function() {
     var defaults = {
       flightName: 'New Flight',
       flightSpeed: 300,
+      flightAltitude: 1000,
       flightColor: 'red',
       pointType: 'point',
       pointColor: 'red',
@@ -277,6 +278,7 @@ module.exports = (function() {
         settingsTooltip: 'Settings',
         streamTooltip: (conf.streaming === true) ? 'Stream mission plan' : 'Streaming disabled on this server',
         flightModalTemplate: fs.readFileSync('app/html/flightModal.html', 'utf8'),
+        flightTurnModalTemplate: fs.readFileSync('app/html/flightTurnModal.html', 'utf8'),
         flightLegModalTemplate: fs.readFileSync('app/html/flightLegModal.html', 'utf8'),
         circleModalTemplate: fs.readFileSync('app/html/circleModal.html', 'utf8'),
         polygonModalTemplate: fs.readFileSync('app/html/polygonModal.html', 'utf8'),
