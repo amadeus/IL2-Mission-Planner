@@ -40,7 +40,7 @@
     "tilemove": "cp -R tile-temp/dist/* dist/tiles && rm -rf tile-temp",
     "browserify": "browserify -t brfs app/js/index.js -o dist/index.tmp.js",
     "browserify:dev": "browserify -t brfs app/js/index.js -o dist/index.js -d",
-    "copy:vendor": "mkdir -p dist/vendor && cp -R app/vendor dist/vendor",
+    "copy:vendor": "mkdir -p dist/vendor && cp -R app/vendor/* dist/vendor/",
     "copy:img": "mkdir -p dist/img; cp app/img/dist/* dist/img/",
     "copy:html": "cp app/index.html dist/index.html",
     "copy:conf": "cp conf/conf.json dist/conf.json",
