@@ -1030,6 +1030,9 @@
                         window.location.hash = "";
                     }
                 }
+                else {
+                    window.location.hash = "";
+                }
             });
         }
     }
