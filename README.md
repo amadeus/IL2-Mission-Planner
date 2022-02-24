@@ -1,8 +1,8 @@
-# Il-2 Mission Planner Revived
+# IL-2 Mission Planner Revived
 
 Welcome to the IL2 Mission Planner Revived repository. This repository houses the code behind the Il-2 Mission Planner web based tool, a simple client-side javascript application based primarily on [Leaflet](http://leafletjs.com/).
 
-Unlike the abandoned il2missionplanner.com project, this fork aims to make optional the dependency on the Streaming and API servers (the latter of which only loses automatic JSON fetch functionality) and generally streamline installation for locally hosted setups based on my own working configuration (test server is currently private, sorry). Streaming (AKA live plan sharing) can optionally be enabled but requires the use of redis and webdis as a backend.
+Unlike the abandoned il2missionplanner.com project, this fork aims to make optional the dependency on the Streaming and API servers (the latter of which only loses automatic JSON fetch functionality) and generally streamline installation for Github Pages and locally hosted setups based on my own working configuration. Streaming (AKA live plan sharing) can optionally be enabled but requires the use of redis and webdis as a backend.
 
 ## Issues and Enhancements
 
@@ -14,7 +14,7 @@ Interested in contributing to this tool? Feel free to fork the project and open 
 
 ## Setting up
 
-Clone the repository. In the repository directory, run `git submodule init` followed by `git submodule update -r`. Then run `npm ci` followed by `bower install` to fetch dependencies. Edit conf/conf.json to match your desired setup. I recommend starting with the defaults (streaming false and api set to none) and just substituting in your domain name. Run `npm run dist` to generate the files to push to your web server and optionally run `npm run tiles` to fetch the tiles from the 'dist' folder of [the tiles repo](https://github.com/ServError/tiles.il2missionplanner.com) and drop them into the tiles subdirectory of the output. Tiles only need to be fetched once.
+Clone the repository. In the repository directory, run `git submodule init` followed by `git submodule update -r`. Then run `npm ci` followed by `bower install` to fetch dependencies. Edit conf/conf.json to match your desired setup. I recommend starting with the defaults (streaming false and api set to NONE) and just substituting in your domain name. Run `npm run dist` to generate the files to push to your web server and optionally run `npm run tiles` to fetch the tiles from the 'dist' folder of [the tiles repo](https://github.com/ServError/tiles.il2missionplanner.com) and drop them into the tiles subdirectory of the output. Tiles only need to be fetched once.
 
 ## Live Development
 

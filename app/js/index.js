@@ -993,7 +993,7 @@
             var cors_api_host = 'cors-anywhere.herokuapp.com';
             var cors_api_url = 'https://' + cors_api_host + '/';
 
-            if (window.location.hash.substring(0, 10) === '#json-url=') {
+            if ((window.location.hash.substring(0, 10) === '#json-url=') && (window.location.hash.length > 10)) {
                 url = /*cors_api_url +*/ window.location.hash.slice(10);
             }
             else
@@ -1546,8 +1546,11 @@
             if (util.isPolygon(layer)) {
                 
             } else if (util.isLine(layer)) {
-                layer.wasEdited = (layer.getLatLngs().length-1 !== layer.speeds.length);
-                applyFlightPlanCallback(layer);
+                if (layer.isFlightPlan)
+                {
+                    layer.wasEdited = (layer.getLatLngs().length-1 !== layer.speeds.length);
+                    applyFlightPlanCallback(layer);
+                }
             } else if (util.isCircle(layer)) {
                 
             } else if (util.isMarker(layer)) {
