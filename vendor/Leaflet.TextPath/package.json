@@ -1,8 +1,12 @@
 {
     "name": "leaflet-textpath",
-    "version": "1.1.0",
+    "version": "1.2.3",
     "description": "Shows a text (or a pattern) along a Polyline",
-    "keywords": ["Leaflet", "GIS", "SVG"],
+    "keywords": [
+        "Leaflet",
+        "GIS",
+        "SVG"
+    ],
     "main": "leaflet.textpath.js",
     "bugs": {
         "url": "https://github.com/makinacorpus/Leaflet.TextPath/issues"
@@ -12,8 +16,10 @@
         "url": "git://github.com/makinacorpus/Leaflet.TextPath.git"
     },
     "license": "MIT",
-    "scripts": {},
-    "dependencies": {
-        "leaflet": "*"
+    "scripts": {
+        "version": "git changelog -t $npm_package_version && git add CHANGELOG.md"
+    },
+    "peerDependencies": {
+        "leaflet": "^1.3.1"
     }
 }

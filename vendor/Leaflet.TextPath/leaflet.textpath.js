@@ -21,8 +21,8 @@ var PolylineTextPath = {
 
     onRemove: function (map) {
         map = map || this._map;
-        if (map && this._textNode)
-            map._pathRoot.removeChild(this._textNode);
+        if (map && this._textNode && map._renderer._container)
+            map._renderer._container.removeChild(this._textNode);
         __onRemove.call(this, map);
     },
 
@@ -65,7 +65,7 @@ var PolylineTextPath = {
         /* If empty text, hide */
         if (!text) {
             if (this._textNode && this._textNode.parentNode) {
-                this._map._pathRoot.removeChild(this._textNode);
+                this._map._renderer._container.removeChild(this._textNode);
                 
                 /* delete the node, so it will not be removed a 2nd time if the layer is later removed from the map */
                 delete this._textNode;
@@ -75,12 +75,12 @@ var PolylineTextPath = {
 
         text = text.replace(/ /g, '\u00A0');  // Non breakable spaces
         var id = 'pathdef-' + L.Util.stamp(this);
-        var svg = this._map._pathRoot;
+        var svg = this._map._renderer._container;
         this._path.setAttribute('id', id);
 
         if (options.repeat) {
             /* Compute single pattern length */
-            var pattern = L.Path.prototype._createElement('text');
+            var pattern = L.SVG.create('text');
             for (var attr in options.attributes)
                 pattern.setAttribute(attr, options.attributes[attr]);
             pattern.appendChild(document.createTextNode(text));
@@ -89,12 +89,12 @@ var PolylineTextPath = {
             svg.removeChild(pattern);
 
             /* Create string as long as path */
-            text = new Array(Math.ceil(this._path.getTotalLength() / alength)).join(text);
+            text = new Array(Math.ceil(isNaN(this._path.getTotalLength() / alength) ? 0 : this._path.getTotalLength() / alength)).join(text);
         }
 
         /* Put it along the path using textPath */
-        var textNode = L.Path.prototype._createElement('text'),
-            textPath = L.Path.prototype._createElement('textPath');
+        var textNode = L.SVG.create('text'),
+            textPath = L.SVG.create('textPath');
 
         var dy = options.offset || this._path.getAttribute('stroke-width');
 
@@ -122,7 +122,6 @@ var PolylineTextPath = {
         }
 
         /* Change label rotation (if required) */
-        console.log(options.orientation)
         if (options.orientation) {
             var rotateAngle = 0;
             switch (options.orientation) {
@@ -142,17 +141,15 @@ var PolylineTextPath = {
         }
 
         /* Initialize mouse events for the additional nodes */
-        if (this.options.clickable) {
+        if (this.options.interactive) {
             if (L.Browser.svg || !L.Browser.vml) {
-                textPath.setAttribute('class', 'leaflet-clickable');
+                textPath.setAttribute('class', 'leaflet-interactive');
             }
 
-            L.DomEvent.on(textNode, 'click', this._onMouseClick, this);
-
-            var events = ['dblclick', 'mousedown', 'mouseover',
+            var events = ['click', 'dblclick', 'mousedown', 'mouseover',
                           'mouseout', 'mousemove', 'contextmenu'];
             for (var i = 0; i < events.length; i++) {
-                L.DomEvent.on(textNode, events[i], this._fireMouseEvent, this);
+                L.DomEvent.on(textNode, events[i], this.fire, this);
             }
         }
 

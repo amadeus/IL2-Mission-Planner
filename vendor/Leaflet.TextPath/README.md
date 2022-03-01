@@ -3,14 +3,12 @@ Leaflet.TextPath
 
 Shows a text along a Polyline.
 
-Check out the [demo](http://makinacorpus.github.com/Leaflet.TextPath/) !
+Check out the [demo](https://makinacorpus.github.io/Leaflet.TextPath/) !
 
 Leaflet versions
 -----
 
-The version on the `gh-pages` branch targets Leaflet 0.7.3.
-
-Please use the `leaflet0.8-dev` branch to be compatible with the development version of Leaflet (0.8).
+The version on the `gh-pages` branch targets Leaflet `1.3.1`.
 
 Usage
 -----

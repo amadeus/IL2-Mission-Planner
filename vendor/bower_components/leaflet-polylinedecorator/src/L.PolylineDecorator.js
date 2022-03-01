@@ -1,101 +1,76 @@
+import L from 'leaflet';
+import {
+    projectPatternOnPointPath,
+    parseRelativeOrAbsoluteValue,
+} from './patternUtils.js';
+import './L.Symbol.js';
 
-L.PolylineDecorator = L.LayerGroup.extend({
+const isCoord = c =>
+    (c instanceof L.LatLng) ||
+    (Array.isArray(c) && c.length === 2 && typeof c[0] === 'number');
+
+const isCoordArray = ll => Array.isArray(ll) && isCoord(ll[0]);
+
+L.PolylineDecorator = L.FeatureGroup.extend({
     options: {
         patterns: []
     },
 
     initialize: function(paths, options) {
-        L.LayerGroup.prototype.initialize.call(this);
+        L.FeatureGroup.prototype.initialize.call(this);
         L.Util.setOptions(this, options);
         this._map = null;
-        this._initPaths(paths);
-        this._initPatterns();
+        this._paths = this._initPaths(paths);
+        this._bounds = this._initBounds();
+        this._patterns = this._initPatterns(this.options.patterns);
     },
 
     /**
-    * Deals with all the different cases. p can be one of these types:
+    * Deals with all the different cases. input can be one of these types:
     * array of LatLng, array of 2-number arrays, Polyline, Polygon,
-    * array of one of the previous, MultiPolyline, MultiPolygon. 
+    * array of one of the previous.
     */
-    _initPaths: function(p) {
-        this._paths = [];
-        var isPolygon = false;
-        if(p instanceof L.MultiPolyline || (isPolygon = (p instanceof L.MultiPolygon))) {
-            var lines = p.getLatLngs();
-            for(var i=0; i<lines.length; i++) {
-                this._initPath(lines[i], isPolygon);
-            }   
-        } else if(p instanceof L.Polyline) {
-            this._initPath(p.getLatLngs(), (p instanceof L.Polygon));
-        } else if(L.Util.isArray(p) && p.length > 0) {
-            if(p[0] instanceof L.Polyline) {
-                for(var i=0; i<p.length; i++) {
-                    this._initPath(p[i].getLatLngs(), (p[i] instanceof L.Polygon));
-                }
-            } else {
-                this._initPath(p);
-            }
+    _initPaths: function(input, isPolygon) {
+        if (isCoordArray(input)) {
+            // Leaflet Polygons don't need the first point to be repeated, but we do
+            const coords = isPolygon ? input.concat([input[0]]) : input;
+            return [coords];
         }
+        if (input instanceof L.Polyline) {
+            // we need some recursivity to support multi-poly*
+            return this._initPaths(input.getLatLngs(), (input instanceof L.Polygon));
+        }
+        if (Array.isArray(input)) {
+            // flatten everything, we just need coordinate lists to apply patterns
+            return input.reduce((flatArray, p) =>
+                flatArray.concat(this._initPaths(p, isPolygon)),
+            []);
+        }
+        return [];
     },
 
-    _isCoordArray: function(ll) {
-        return(L.Util.isArray(ll) && ll.length > 0 && (
-            ll[0] instanceof L.LatLng || 
-            (L.Util.isArray(ll[0]) && ll[0].length == 2 && typeof ll[0][0] === 'number')
-        ));
-    },
-
-    _initPath: function(path, isPolygon) {
-        var latLngs;
-        // It may still be an array of array of coordinates
-        // (ex: polygon with rings)
-        if(this._isCoordArray(path)) {
-            latLngs = [path];
-        } else {
-            latLngs = path;
-        }
-        for(var i=0; i<latLngs.length; i++) {
-            // As of Leaflet >= v0.6, last polygon vertex (=first) isn't repeated.
-            // Our algorithm needs it, so we add it back explicitly.
-            if(isPolygon) {
-                latLngs[i].push(latLngs[i][0]);
-            }
-            this._paths.push(latLngs[i]);
-        }
-    },   
-
-    _initPatterns: function() {
-        this._isZoomDependant = false;
-        this._patterns = [];
-        var pattern;
-        // parse pattern definitions and precompute some values
-        for(var i=0;i<this.options.patterns.length;i++) {
-            pattern = this._parsePatternDef(this.options.patterns[i]);
-            this._patterns.push(pattern);
-            // determines if we have to recompute the pattern on each zoom change
-            this._isZoomDependant = this._isZoomDependant ||
-                pattern.isOffsetInPixels ||
-                pattern.isRepeatInPixels ||
-                pattern.symbolFactory.isZoomDependant;
-        }
+    // parse pattern definitions and precompute some values
+    _initPatterns: function(patternDefs) {
+        return patternDefs.map(this._parsePatternDef);
     },
 
     /**
-    * Changes the patterns used by this decorator 
+    * Changes the patterns used by this decorator
     * and redraws the new one.
     */
     setPatterns: function(patterns) {
         this.options.patterns = patterns;
-        this._initPatterns();
-        this._softRedraw();
+        this._patterns = this._initPatterns(this.options.patterns);
+        this.redraw();
     },
 
     /**
-    * Changes the patterns used by this decorator 
+    * Changes the patterns used by this decorator
     * and redraws the new one.
     */
     setPaths: function(paths) {
-        this._initPaths(paths);
+        this._paths = this._initPaths(paths);
+        this._bounds = this._initBounds();
         this.redraw();
     },
 
@@ -103,151 +78,94 @@ L.PolylineDecorator = L.LayerGroup.extend({
     * Parse the pattern definition
     */
     _parsePatternDef: function(patternDef, latLngs) {
-        var pattern = {
-            cache: [],
+        return {
             symbolFactory: patternDef.symbol,
-            isOffsetInPixels: false,
-            isRepeatInPixels: false
+            // Parse offset and repeat values, managing the two cases:
+            // absolute (in pixels) or relative (in percentage of the polyline length)
+            offset: parseRelativeOrAbsoluteValue(patternDef.offset),
+            endOffset: parseRelativeOrAbsoluteValue(patternDef.endOffset),
+            repeat: parseRelativeOrAbsoluteValue(patternDef.repeat),
         };
-        
-        // Parse offset and repeat values, managing the two cases:
-        // absolute (in pixels) or relative (in percentage of the polyline length)
-        if(typeof patternDef.offset === 'string' && patternDef.offset.indexOf('%') != -1) {
-            pattern.offset = parseFloat(patternDef.offset) / 100;
-        } else {
-            pattern.offset = parseFloat(patternDef.offset);
-            pattern.isOffsetInPixels = (pattern.offset > 0);
-        }
-        
-        
-        if(typeof patternDef.repeat === 'string' && patternDef.repeat.indexOf('%') != -1) {
-            pattern.repeat = parseFloat(patternDef.repeat) / 100;
-        } else {
-            pattern.repeat = parseFloat(patternDef.repeat);
-            pattern.isRepeatInPixels = (pattern.repeat > 0);
-        }
-        
-        // TODO: 0 => not pixel dependant => 0%
-        
-        return(pattern);
     },
 
     onAdd: function (map) {
         this._map = map;
         this._draw();
-        // listen to zoom changes to redraw pixel-spaced patterns
-        if(this._isZoomDependant) {
-            this._map.on('zoomend', this._softRedraw, this);
-        }
+        this._map.on('moveend', this.redraw, this);
     },
 
     onRemove: function (map) {
-        // remove optional map zoom listener
-        this._map.off('zoomend', this._softRedraw, this);
+        this._map.off('moveend', this.redraw, this);
         this._map = null;
-        L.LayerGroup.prototype.onRemove.call(this, map);
+        L.FeatureGroup.prototype.onRemove.call(this, map);
+    },
+
+    /**
+    * As real pattern bounds depends on map zoom and bounds,
+    * we just compute the total bounds of all paths decorated by this instance.
+    */
+    _initBounds: function() {
+        const allPathCoords = this._paths.reduce((acc, path) => acc.concat(path), []);
+        return L.latLngBounds(allPathCoords);
+    },
+
+    getBounds: function() {
+        return this._bounds;
     },
 
     /**
     * Returns an array of ILayers object
     */
     _buildSymbols: function(latLngs, symbolFactory, directionPoints) {
-        var symbols = [];
-        for(var i=0, l=directionPoints.length; i<l; i++) {
-            symbols.push(symbolFactory.buildSymbol(directionPoints[i], latLngs, this._map, i, l));
-        }
-        return symbols;
-    },
-
-    _getCache: function(pattern, zoom, pathIndex) {
-        var zoomCache = pattern.cache[zoom];
-        if(typeof zoomCache === 'undefined') {
-            pattern.cache[zoom] = [];
-            return null;
-        }
-        return zoomCache[pathIndex];
+        return directionPoints.map((directionPoint, i) =>
+            symbolFactory.buildSymbol(directionPoint, latLngs, this._map, i, directionPoints.length)
+        );
     },
 
     /**
-    * Select pairs of LatLng and heading angle,
-    * that define positions and directions of the symbols
-    * on the path 
+    * Compute pairs of LatLng and heading angle,
+    * that define positions and directions of the symbols on the path
     */
-    _getDirectionPoints: function(pathIndex, pattern) {
-        var zoom = this._map.getZoom();
-        var dirPoints = this._getCache(pattern, zoom, pathIndex);
-        if(dirPoints) {
-            return dirPoints;
+    _getDirectionPoints: function(latLngs, pattern) {
+        if (latLngs.length < 2) {
+            return [];
         }
-
-        var offset, repeat, pathPixelLength = null, latLngs = this._paths[pathIndex];
-        if(pattern.isOffsetInPixels) {
-            pathPixelLength =  L.LineUtil.PolylineDecorator.getPixelLength(latLngs, this._map);
-            offset = pattern.offset/pathPixelLength;
-        } else {
-            offset = pattern.offset;
-        }
-        if(pattern.isRepeatInPixels) {
-            pathPixelLength = (pathPixelLength !== null) ? pathPixelLength : L.LineUtil.PolylineDecorator.getPixelLength(latLngs, this._map);
-            repeat = pattern.repeat/pathPixelLength; 
-        } else {
-            repeat = pattern.repeat;
-        }
-        dirPoints = L.LineUtil.PolylineDecorator.projectPatternOnPath(latLngs, offset, repeat, this._map);
-        // save in cache to avoid recomputing this
-        pattern.cache[zoom][pathIndex] = dirPoints;
-        
-        return dirPoints;
+        const pathAsPoints = latLngs.map(latLng => this._map.project(latLng));
+        return projectPatternOnPointPath(pathAsPoints, pattern)
+            .map(point => ({
+                latLng: this._map.unproject(L.point(point.pt)),
+                heading: point.heading,
+            }));
     },
 
-    /**
-    * Public redraw, invalidating the cache.
-    */
     redraw: function() {
-        this._redraw(true);
-    },
-    
-    /**
-    * "Soft" redraw, called internally for example on zoom changes,
-    * keeping the cache. 
-    */
-    _softRedraw: function() {
-        this._redraw(false);
-    },
-    
-    _redraw: function(clearCache) {
-        if(this._map === null)
+        if (!this._map) {
             return;
-        this.clearLayers();
-        if(clearCache) {
-            for(var i=0; i<this._patterns.length; i++) {
-                this._patterns[i].cache = [];
-            }
         }
+        this.clearLayers();
         this._draw();
     },
-    
+
     /**
-    * Draw a single pattern
+    * Returns all symbols for a given pattern as an array of FeatureGroup
     */
-    _drawPattern: function(pattern) {
-        var directionPoints, symbols;
-        for(var i=0; i < this._paths.length; i++) {
-            directionPoints = this._getDirectionPoints(i, pattern);
-            symbols = this._buildSymbols(this._paths[i], pattern.symbolFactory, directionPoints);
-            for(var j=0; j < symbols.length; j++) {
-                this.addLayer(symbols[j]);
-            }
-        }
+    _getPatternLayers: function(pattern) {
+        const mapBounds = this._map.getBounds().pad(0.1);
+        return this._paths.map(path => {
+            const directionPoints = this._getDirectionPoints(path, pattern)
+                // filter out invisible points
+                .filter(point => mapBounds.contains(point.latLng));
+            return L.featureGroup(this._buildSymbols(path, pattern.symbolFactory, directionPoints));
+        });
     },
 
     /**
     * Draw all patterns
     */
     _draw: function () {
-        for(var i=0; i<this._patterns.length; i++) {
-            this._drawPattern(this._patterns[i]);
-        }
+        this._patterns
+            .map(pattern => this._getPatternLayers(pattern))
+            .forEach(layers => { this.addLayer(L.featureGroup(layers)); });
     }
 });
 /*
