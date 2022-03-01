@@ -1,0 +1,3 @@
+exclude:
+- vendor/bower_components/leaflet/docs
+
