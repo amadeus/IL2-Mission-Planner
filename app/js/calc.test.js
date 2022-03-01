@@ -8,41 +8,6 @@ function strLatLng(latLng) {
 
 describe('calc', function() {
 
-    it('must be defined', function() {
-        assert.isDefined(calc);
-    });
-
-    describe('calc.distance', function() {
-
-        it('must be defined', function() {
-            assert.isDefined(calc.distance);
-        });
-
-        var tests = [
-            {
-                a: {lat: 0, lng: 1},
-                b: {lat: 1, lng: 1},
-                expectedDistance: 1
-            },
-            {
-                a: {lat: 0, lng: 0},
-                b: {lat: 0, lng:-1},
-                expectedDistance: 1
-            },
-            {
-                a: {lat: 0, lng: 0},
-                b: {lat: 1, lng: 1},
-                expectedDistance: Math.sqrt(2)
-            }
-        ];
-
-        tests.forEach(function(test) {
-            it('must return '+test.expectedDistance+' given '+strLatLng(test.a)+' and '+strLatLng(test.b), function() {
-                assert.strictEqual(calc.distance(test.a, test.b), test.expectedDistance);
-            });
-        });
-    });
-
     describe('calc.geometricDegreesToGeographic', function() {
 
         it('must be defined', function() {
@@ -188,7 +153,7 @@ describe('calc', function() {
                     lngMin: 0,
                     lngMax: 10
                 },
-                expected: [[-5, -5], [15, 15]]
+                expected: [[-20, -20], [30, 30]]
             },
             {
                 given: {
@@ -197,7 +162,7 @@ describe('calc', function() {
                     lngMin: 0,
                     lngMax: 100
                 },
-                expected: [[-5, -5], [105, 105]]
+                expected: [[-20, -20], [120, 120]]
             }
         ];
 
@@ -218,7 +183,9 @@ describe('calc', function() {
             {
                 given: {
                     latMax: 10,
-                    lngMax: 10
+                    latMin: 0,
+                    lngMax: 10,
+                    lngMin: 0,
                 },
                 expected: [5, 5]
             }

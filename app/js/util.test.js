@@ -152,7 +152,7 @@ describe('util', function() {
             assert.isDefined(util.formatFlightLegMarker);
         });
 
-        var expected = '300.0km | 116&deg;/296&deg; <br/> 300kph | ETE 60:00';
+        var expected = '<div style="background: rgba(100, 100, 100, .75); transform: rotate(26deg);">300.0km | 116&deg;/296&deg; <br/> 300kph | ETE 60:00</div>';
         var given = {
             distance: 300,
             heading: 116,
@@ -162,62 +162,6 @@ describe('util', function() {
  
         it('must return '+expected+' given '+given.distance+', '+given.heading+', '+given.speed+' and '+given.time, function() {
             assert.strictEqual(util.formatFlightLegMarker(given.distance, given.heading, given.speed, given.time, 'metric'), expected);
-        });
-    });
-
-    describe('util.isLine', function() {
-
-        it('must be defined', function() {
-            assert.isDefined(util.isLine);
-        });
-
-        var tests = [
-            {
-                given: {
-                    getLatLngs: function(){}
-                },
-                expected: true
-            },
-            {
-                given: {
-                    getLatLng: function(){}
-                },
-                expected: false
-            }
-        ]
-
-        tests.forEach(function(test) {
-            it('must return '+test.expected+' given '+JSON.stringify(test.given), function() {
-                assert.strictEqual(util.isLine(test.given), test.expected);
-            });
-        });
-    });
-
-    describe('util.isMarker', function() {
-
-        it('must be defined', function() {
-            assert.isDefined(util.isMarker);
-        });
-
-        var tests = [
-            {
-                given: {
-                    getLatLngs: function(){}
-                },
-                expected: false
-            },
-            {
-                given: {
-                    getLatLng: function(){}
-                },
-                expected: true
-            }
-        ]
-
-        tests.forEach(function(test) {
-            it('must return '+test.expected+' given '+JSON.stringify(test.given), function() {
-                assert.strictEqual(util.isMarker(test.given), test.expected);
-            });
         });
     });
 

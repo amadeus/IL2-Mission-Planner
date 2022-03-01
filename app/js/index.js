@@ -13,6 +13,7 @@
     var conf = JSON.parse(fs.readFileSync('dist/conf.json', 'utf8'));
 
     const
+        EXPORT_REV = 2,
         RED = '#9A070B',
         RED_FRONT = '#BD0101',
         BLUE = '#3C6490',
@@ -47,20 +48,18 @@
     };
 
     // Patch a leaflet bug, see https://github.com/bbecquet/Leaflet.PolylineDecorator/issues/17
-    L.PolylineDecorator.include(L.Mixin.Events);
-
-    // Patch leaflet content with custom language
-    L.drawLocal = content.augmentedLeafletDrawLocal;
-
-    // TODO: Fix for circles being ruined because our map is interpreted as crossing over poles
+    L.PolylineDecorator.include(L.Evented);
 
     // CRS.Simple kind of sucks in 0.7.7, lets extend it in case we need to change it
-    L.CRS.XY = L.Util.extend({}, L.CRS.Simple, {
-        code: 'XY',
-        projection: L.Projection.LonLat,
-        transformation: new L.Transformation(1, 0, -1, 0),
-        infinite: true
+    L.CRS.SimpleFinite = L.Util.extend({}, L.CRS.Simple, {
+        infinite: false,
     });
+
+    // We want to reverse the tile Y without messing with any underlying planner code
+    L.CRS.SimpleFlip = L.Util.extend({}, L.CRS.Simple, {
+        transformation: new L.Transformation(1, 0, 1, 0),
+    });
+
 
     // Initialize form validation
     var V = new Validatinator(content.validatinatorConfig);
@@ -232,7 +231,7 @@
                         if (marker.priorMarkerId !== 0)
                         {
                             var altDiff = calc.altitudeUnitAdjust(Math.abs(parentRoute.altitudes[marker.index] - parentRoute.altitudes[marker.index-1]), state.units);
-                            //var gndDistance = mapConfig.scale * calc.distance(coords[marker.index], coords[marker.index-1]);
+                            //var gndDistance = mapConfig.scale * L.CRS.Simple.distance(coords[marker.index], coords[marker.index-1]);
                             //var airDistance = parseFloat(altDiff) + parseFloat(gndDistance);
 
                             var priorMarker = drawnMarkers.getLayer(marker.priorMarkerId);
@@ -242,7 +241,7 @@
                         if (marker.followingMarkerId !== 0)
                         {
                             altDiff = calc.altitudeUnitAdjust(Math.abs(parentRoute.altitudes[marker.index] - parentRoute.altitudes[marker.index+1]), state.units);
-                            //gndDistance = mapConfig.scale * calc.distance(coords[marker.index], coords[marker.index-1]);
+                            //gndDistance = mapConfig.scale * L.CRS.Simple.distance(coords[marker.index], coords[marker.index-1]);
                             //airDistance = parseFloat(altDiff) + parseFloat(gndDistance);
 
                             var followingMarker = drawnMarkers.getLayer(marker.followingMarkerId);
@@ -322,7 +321,7 @@
                 marker.options.time,
                 state.units
             );
-        marker.setIcon(icons.textIconFactory(newContent, 'flight-leg ' + getMapTextClasses(state)));
+        marker.setIcon(icons.textIconFactory(newContent, 'flight-leg  nobg ' + getMapTextClasses(state)));
         publishMapState();
     }
 
@@ -361,6 +360,7 @@
         var decorator = newFlightDecorator(route);
         decorator.parentId = id;
         decorator.addTo(drawnMarkers);
+        decorator.on('click', routeClickHandlerFactory(route));
         if (typeof route.speeds === 'undefined' || route.speedDirty || route.wasEdited) {
             route.speeds = util.defaultPopulateArray(route.speed, coords.length-1);
             route.speedDirty = false;
@@ -383,11 +383,19 @@
         turnMarker.index = 0;
         turnMarker.on('click', turnClickHandlerFactory(turnMarker));
         turnMarker.addTo(drawnMarkers);
-        turnMarker.followingMarkerId = turnMarker._leaflet_id + 1;
+
+        var orientation = 0;
+        var heading = calc.heading(coords[0], coords[1]);
+        if (heading > 180)
+        {
+            orientation = 'flip';
+        }
+
+        route.setText(route.name, {offset: -10, orientation: orientation, attributes: {class: 'text-path-flight-title', fill: route.color}});
 
         for (var i = 0; i < coords.length-1; i++) {
             var altDiff = calc.altitudeUnitAdjust(Math.abs(route.altitudes[i] - route.altitudes[i+1]), state.units);
-            var gndDistance = mapConfig.scale * calc.distance(coords[i], coords[i+1]);
+            var gndDistance = mapConfig.scale * L.CRS.Simple.distance(coords[i], coords[i+1]);
             var airDistance = parseFloat(altDiff) + parseFloat(gndDistance);
             var heading = calc.heading(coords[i], coords[i+1]);
             var midpoint = calc.midpoint(coords[i], coords[i+1]);
@@ -399,12 +407,15 @@
                 heading: heading,
                 time: time,
                 speed: route.speeds[i],
-                icon: icons.textIconFactory(markerContent, 'flight-leg ' + getMapTextClasses(state))
+                icon: icons.textIconFactory(markerContent, 'flight-leg nobg ' + getMapTextClasses(state))
             });
             marker.parentId = id;
             marker.index = i;
             marker.on('click', markerClickHandlerFactory(marker));
             marker.addTo(drawnMarkers);
+
+            turnMarker.followingMarkerId = marker._leaflet_id; // On first loop, this affects the turnMarker above.
+                                                               // In later loops, it affects the  ones below.
 
             turnCoords = L.latLng(coords[i + 1].lat, coords[i + 1].lng);
             turnMarkerContent = util.formatFlightTurnMarker(route.altitudes[i+1], state.units);
@@ -415,11 +426,7 @@
             });
             turnMarker.parentId = id;
             turnMarker.priorMarkerId = marker._leaflet_id;
-            if (i !== coords.length-2) 
-            {
-                turnMarker.followingMarkerId = marker._leaflet_id + 2; // +1 is us, +2 is next
-            }
-            else
+            if (i === coords.length-2) 
             {
                 turnMarker.followingMarkerId = 0;
             }
@@ -430,7 +437,7 @@
 
         for (var i = 0; i < coords.length-1; i++) {
             var routeMarker = L.circleMarker(coords[i], {
-                clickable: true,
+                interactive: true,
                 radius: 1,
                 color: route.color,
                 fillColor: route.color,
@@ -443,7 +450,7 @@
         }
 
         var endMarker = L.circleMarker(coords[coords.length-1], {
-            clickable: false,
+            interactive: false,
             radius: 3,
             color: route.color,
             fillColor: route.color,
@@ -453,15 +460,17 @@
         endMarker.parentId = id;
         endMarker.addTo(drawnMarkers);
 
+        /*
         var nameCoords = L.latLng(coords[0].lat, coords[0].lng);
         //var nameMarkerContent = util.formatFlightStartMarker(route.name, route.altitudes[0], state.units);
         var nameMarker = L.marker(nameCoords, {
             draggable: false,
-            icon: icons.textIconFactory(/*nameMarkerContent*/ route.name, 'map-title flight-titles ' + getMapTextClasses(state))
+            icon: icons.textIconFactory(route.name, 'map-title flight-titles ' + getMapTextClasses(state))
         });
         nameMarker.parentId = id;
         nameMarker.on('click', routeClickHandlerFactory(route));
         nameMarker.addTo(drawnMarkers);
+        */
         publishMapState();
     }
 
@@ -485,10 +494,19 @@
             route.color = content.default.flightColor;
         }
         var initialSpeed = route.speed;
-        var initialAltitude = route.altitude;
+        var averageAltitude = 0;
+        if (!newFlight) {
+            for (var i = 0; i < route.altitudes.length; i++){
+                averageAltitude = averageAltitude + route.altitudes[i];
+            }
+            averageAltitude = averageAltitude / route.altitudes.length;
+        }
+        else {
+            averageAltitude = route.altitude;
+        }
         var clickedOk = false;
         map.openModal({
-            altitude: route.altitude,
+            altitude: averageAltitude,
             speed: route.speed,
             name: route.name,
             color: route.color,
@@ -516,7 +534,7 @@
                     route.speedDirty = (route.speed !== initialSpeed);
                     route.color = document.getElementById('flight-color').value;
                     route.altitude = document.getElementById('flight-altitude').value;
-                    route.altitudeDirty = (route.altitude !== initialAltitude);
+                    route.altitudeDirty = (parseInt(route.altitude) !== parseInt(averageAltitude));
                     
                     switch (route.color)
                     {
@@ -538,7 +556,7 @@
                     }
                     else
                     {
-                        route.clickable = false;
+                        route.interactive = false;
                     }
                 } else if (newFlight) {
                     drawnItems.removeLayer(route);
@@ -564,7 +582,7 @@
         var coords = target.getLatLng();
         target.setIcon(icons.factory(target.type, target.color));
         if (newTarget) {
-            target.on('click', targetClickHandlerFactory(target));
+            target.on('contextmenu', targetClickHandlerFactory(target));
         }
         var nameCoords = L.latLng(coords.lat, coords.lng);
         if (state.style === 'classic')
@@ -605,11 +623,16 @@
                 });
             }
         }
+
+        if (util.validUrl(target.photo)) {
+            util.bindPicture(target.photo, target);
+        }
+        
         nameMarker.parentId = id;
         nameMarker.on('click', targetClickHandlerFactory(target));
         nameMarker.addTo(drawnMarkers);
         if (target.notes !== '') {
-            target.bindLabel(target.notes, {
+            target.bindTooltip(target.notes, {
                 direction: 'left'
             }).addTo(drawnMarkers);
         }
@@ -634,10 +657,16 @@
         if (typeof target.color === 'undefined') {
             target.color = content.default.pointColor;
         }
+        if (typeof target.photo === 'undefined') {
+            target.photo = '';
+        }
+        var validPhoto = false;
+
         var clickedOk = false;
         map.openModal({
             name: target.name,
             notes: target.notes,
+            photo: '',
             template: content.pointModalTemplate,
             zIndex: 10000,
             onShow: function(e) {
@@ -648,6 +677,36 @@
                 typeSelect.value = target.type;
                 var colorSelect = document.getElementById('point-color-select');
                 colorSelect.value = target.color;
+                var photoSelect = document.getElementById('target-photo');
+                photoSelect.value = target.photo;
+                L.DomEvent.on(e.modal._container.querySelector('.modal-test-photo'), 'click', function() {
+                    
+                    if (util.validUrl(photoSelect.value)){
+                        var xhr = util.buildGetBlobXhr(photoSelect.value, function() {
+                            if (xhr.status === 200){
+                                if (xhr.response !== "") {
+                                    target.photo = photoSelect.value;
+                                    validPhoto = true;
+                                    util.removeClass(document.getElementById('photo-status-hidden'), 'hidden-section');
+                                }
+                                else {
+                                    photoSelect.value = "failed, try again";
+                                    validPhoto = false;
+                                    util.addClass(document.getElementById('photo-status-hidden'), 'hidden-section');
+                                }
+                            }
+                            else {
+                                photoSelect.value = "failed, try again";
+                                validPhoto = false;
+                                util.addClass(document.getElementById('photo-status-hidden'), 'hidden-section');
+                            }
+                        });
+                    } else {
+                        photoSelect.value = "failed, try again";
+                        validPhoto = false;
+                        util.addClass(document.getElementById('photo-status-hidden'), 'hidden-section');
+                    }
+                });
                 L.DomEvent.on(e.modal._container.querySelector('.modal-ok'), 'click', function() {
                     clickedOk = true;
                     e.modal.hide();
@@ -662,6 +721,9 @@
                     target.notes = document.getElementById('target-notes').value;
                     target.type = document.getElementById('point-type-select').value;
                     target.color = document.getElementById('point-color-select').value;
+                    if (validPhoto) {
+                        target.photo = document.getElementById('target-photo').value;
+                    }
                     applyTargetInfoCallback(target, newTarget);
                 } else if (newTarget) {
                     drawnItems.removeLayer(target);
@@ -687,6 +749,11 @@
         hiddenLayers.eachLayer(function(layer) {
             if (toDelete.indexOf(layer.parentId) !== -1) {
                 hiddenLayers.removeLayer(layer);
+            }
+        });
+        drawnMarkers.eachLayer(function(layer) {
+            if (toDelete.indexOf(layer.parentId) !== -1) {
+                drawnMarkers.removeLayer(layer);
             }
         });
     }
@@ -774,6 +841,12 @@
         if (conf.streaming !== true) {
             disableButtons(buttons);
         }
+        buttons = ['export-excel-button'];
+        if (!util.flightPlanPresent(drawnItems)) {
+            disableButtons(buttons);
+        } else {
+            enableButtons(buttons);
+        }
     }
 
     function clearMap() {
@@ -785,8 +858,40 @@
         publishMapState();
     }
 
+    function exportMapToCSV() {
+        var csvData = [];
+
+        var FlightName = 'Flight Name';
+        var FlightLeg = 'Flight Leg';
+        var FlightHeading = 'Heading';
+        var FlightLegDistance = (state.units === 'imperial') ? 'Distance (mi)' : 'Distance (km)';
+        var FlightLegSpeed = (state.units === 'imperial') ? 'Speed (mph)' : 'Speed (kph)';
+        var FlightLegAltitude = (state.units === 'imperial') ? 'Altitude (ft)' : 'Altitude (m)';
+        csvData.push({FlightName, FlightLeg, FlightHeading, FlightLegDistance, FlightLegSpeed, FlightLegAltitude});
+
+        drawnItems.eachLayer(function(layer) {
+            if ((layer instanceof L.Polyline) && !(layer instanceof L.Polygon)) {
+                if (layer.isFlightPlan) {
+                    var coords = layer.getLatLngs();
+                    for (var i = 0; i < (coords.length - 1); i++)
+                    {
+                        var FlightName = layer.name;
+                        var FlightLeg = (i + 1);
+                        var FlightHeading = Math.round(calc.heading(coords[i], coords[i+1]));
+                        var FlightLegDistance = parseFloat(mapConfig.scale * L.CRS.Simple.distance(coords[i], coords[i+1])).toFixed(1);
+                        var FlightLegSpeed = Math.round(layer.speeds[i]);
+                        var FlightLegAltitude = Math.round(layer.altitudes[i]);
+                        csvData.push({FlightName, FlightLeg, FlightHeading, FlightLegDistance, FlightLegSpeed, FlightLegAltitude});
+                    }
+                }
+            }
+        });
+        return csvData;
+    }
+
     function exportMapState() {
         var saveData = {
+            revision: EXPORT_REV,  // Up the rev on every breaking change to import
             mapHash: window.location.hash,
             units: state.units,
             routes: [],
@@ -796,12 +901,13 @@
         };
         drawnItems.eachLayer(function(layer) {
             var saveLayer = {};
-            if (util.isPolygon(layer)) {
+            // Order matters here because polgyon inherits from polyline and circle inherits from circleMarker
+            if (layer instanceof L.Polygon) {
                 saveLayer.latLngs = layer.getLatLngs();
                 saveLayer.color = layer.options.color;
                 saveLayer.fillOpacity = layer.options.fillOpacity;
                 saveData.polygons.push(saveLayer);
-            } else if (util.isLine(layer)) {
+            } else if (layer instanceof L.Polyline) {
                 saveLayer.latLngs = layer.getLatLngs();
                 saveLayer.name = layer.name;
                 saveLayer.speed = layer.speed;
@@ -811,18 +917,19 @@
                 saveLayer.color = layer.color;
                 saveLayer.isFlightPlan = layer.isFlightPlan;
                 saveData.routes.push(saveLayer);
-            } else if (util.isCircle(layer)) {
+            } else if (layer instanceof L.Circle) {
                 saveLayer.latLng = layer.getLatLng();
                 saveLayer.radius = layer.getRadius();
                 saveLayer.color = layer.options.color;
                 saveLayer.fillOpacity = layer.options.fillOpacity;
                 saveData.circles.push(saveLayer);
-            } else if (util.isMarker(layer)) {
+            } else if (layer instanceof L.Marker) {
                 saveLayer.latLng = layer.getLatLng();
                 saveLayer.name = layer.name;
                 saveLayer.type = layer.type;
                 saveLayer.color = layer.color;
                 saveLayer.notes = layer.notes;
+                saveLayer.photo = layer.photo;
                 saveData.points.push(saveLayer);
             }
         });
@@ -843,9 +950,6 @@
             mapTiles = L.tileLayer(selectedMapConfig.tileUrl, {
                 minZoom: selectedMapConfig.minZoom,
                 maxZoom: selectedMapConfig.maxZoom,
-                noWrap: true,
-                tms: true,
-                continuousWorld: true,
                 bounds: calc.tileBounds(selectedMapConfig)
             }).addTo(map);
             map.setMaxBounds(calc.maxBounds(selectedMapConfig));
@@ -854,7 +958,7 @@
     }
 
     function fitViewToMission() {
-        map.fitBounds(drawnItems.getBounds());
+        map.flyToBounds(drawnItems.getBounds());
     }
 
     function getMapTextClasses(state) {
@@ -870,6 +974,7 @@
 
     function importMapState(saveData) {
         clearMap();
+        var revision = saveData.revision;
         var importedMapConfig = util.getSelectedMapConfig(saveData.mapHash, content.maps);
         selectMap(importedMapConfig);
         mapConfig = importedMapConfig;
@@ -883,7 +988,7 @@
                     route.color = RED;
                 }
                 var options = {color: route.color, weight: 2, opacity: FLIGHT_OPACITY};
-                var newRoute = L.polyline(route.latLngs, options);
+                var newRoute = L.polyline(util.fixOldLatLngs(route.latLngs, mapConfig, revision), options);
                 newRoute.name = route.name;
                 newRoute.speed = route.speed;
                 newRoute.speeds = route.speeds;
@@ -901,13 +1006,14 @@
         if (saveData.points) {
             for (var i = 0; i < saveData.points.length; i++) {
                 var point = saveData.points[i];
-                var newPoint = L.marker(point.latLng, {
+                var newPoint = L.marker(util.fixOldLatLng(point.latLng, mapConfig, revision), {
                     icon: icons.factory(point.type, point.color)
                 });
                 newPoint.name = point.name;
                 newPoint.type = point.type;
                 newPoint.color = point.color;
                 newPoint.notes = point.notes;
+                newPoint.photo = point.photo;
                 drawnItems.addLayer(newPoint);
                 applyTargetInfoCallback(newPoint);
             }
@@ -915,7 +1021,7 @@
         if (saveData.circles) {
             for (var i = 0; i < saveData.circles.length; i++) {
                 var circle = saveData.circles[i];
-                var newCircle = L.circle(circle.latLng, circle.radius);
+                var newCircle = L.circle(util.fixOldLatLng(circle.latLng, mapConfig, revision), circle.radius);
                 newCircle.options.color = circle.color;
                 newCircle.options.fillOpacity = circle.fillOpacity;
                 newCircle.options.opacity = FLIGHT_OPACITY;
@@ -928,7 +1034,7 @@
             for (var i = 0; i < saveData.polygons.length; i++) {
                 var polygon = saveData.polygons[i];
                 var options = {color: polygon.color, weight: 2, opacity: FLIGHT_OPACITY, fillOpacity: polygon.fillOpacity};
-                var newPolygon = L.polygon(polygon.latLngs, options);
+                var newPolygon = L.polygon(util.fixOldLatLngs(polygon.latLngs, mapConfig, revision), options);
                 newPolygon.options.isPolygon = true;
                 newPolygon.options.color = polygon.color;
                 newPolygon.options.fillOpacity = polygon.fillOpacity;
@@ -937,8 +1043,8 @@
         }
         if (saveData.frontline) {
             for (var frontNdx = 0; frontNdx < saveData.frontline.length; frontNdx++) { // for each frontline
-                var blueFront = saveData.frontline[frontNdx][0];
-                var redFront = saveData.frontline[frontNdx][1];
+                var blueFront = util.fixOldLatLngs(saveData.frontline[frontNdx][0], mapConfig, revision);
+                var redFront = util.fixOldLatLngs(saveData.frontline[frontNdx][1], mapConfig, revision);
                 L.polyline(blueFront, {color: BLUE_FRONT, opacity: 1}).addTo(frontline);
                 L.polyline(redFront, {color: RED_FRONT, opacity: 1}).addTo(frontline);
             }
@@ -1041,16 +1147,13 @@
     selectedMapIndex = mapConfig.selectIndex;
 
     map = L.map('map', {
-        crs: L.CRS.XY,
+        crs: L.CRS.Simple,
         attributionControl: false
     });
 
     mapTiles = L.tileLayer(mapConfig.tileUrl, {
         minZoom: mapConfig.minZoom,
         maxZoom: mapConfig.maxZoom,
-        noWrap: true,
-        tms: true,
-        continuousWorld: true,
         bounds: calc.tileBounds(mapConfig)
     }).addTo(map);
 
@@ -1072,21 +1175,22 @@
                 shapeOptions: LINE_OPTIONS
             },
             rectangle: false,
-            circle: false,/*{
+            circle: {
                 showRadius: false,
                 shapeOptions: CIRCLE_OPTIONS
-            },*/
+            },
             polyline: {
                 showLength: false,
                 shapeOptions: LINE_OPTIONS
             },
             marker: {
                 icon: icons.factory(content.default.pointType, content.default.pointColor)
-            }
+            },
+            circlemarker: false
         },
         edit: {
             featureGroup: drawnItems,
-            edit: L.Browser.touch ? false : {
+            edit: { // L.Browser.touch is now always true, so it can't be used to detect touchscreens and disable the edit bar.
                 selectedPathOptions: {
                     maintainColor: true,
                     opacity: 0.4,
@@ -1095,6 +1199,13 @@
             }
         }
     });
+
+    // Extend the draw UI with our own text
+    L.drawLocal.draw.toolbar.buttons.polyline = 'Map a flight / Draw a polyline';
+    L.drawLocal.draw.handlers.polyline.tooltip.start = 'Click to start a flight plan / polyline';
+    L.drawLocal.draw.handlers.polyline.tooltip.cont = 'Click to continue the flight plan / polyline';
+    L.drawLocal.draw.handlers.polyline.tooltip.end = 'Click last point to finish flight plan / polyline';
+    
     map.addControl(drawControl);
 
     var titleControl = new L.Control.TitleControl({});
@@ -1280,7 +1391,17 @@
                 tooltip: content.exportTooltip,
                 clickFn: function() {
                     if (!mapIsEmpty()) {
-                        util.download('plan.json', JSON.stringify(exportMapState()));
+                        util.download('plan_IL2MPR_r' + EXPORT_REV + '.json', JSON.stringify(exportMapState()));
+                    }
+                }
+            },
+            {
+                id: 'export-excel-button',
+                icon: 'fa-file-excel-o',
+                tooltip: content.exportCSVTooltip,
+                clickFn: function() {
+                    if (!mapIsEmpty() && util.flightPlanPresent(drawnItems)) {
+                        util.download('csv_IL2MPR_r' + EXPORT_REV + '.csv', util.csvConvert(exportMapToCSV()));
                     }
                 }
             },
@@ -1493,7 +1614,7 @@
                                 if (V.passes('grid-jump-form')) {
                                     var grid = gridElement.value;
                                     var viewLatLng = calc.gridLatLng(grid, mapConfig);
-                                    map.setView(viewLatLng, mapConfig.gridHopZoom);
+                                    map.flyTo(viewLatLng, mapConfig.gridHopZoom);
                                     e.modal.hide();
                                 } else {
                                     var errorElement = document.getElementById('grid-jump-error');
@@ -1546,17 +1667,17 @@
     map.on('draw:edited', function(e) {
         deleteAssociatedLayers(e.layers);
         e.layers.eachLayer(function(layer) {
-            if (util.isPolygon(layer)) {
+            if (layer instanceof L.Polygon) {
                 
-            } else if (util.isLine(layer)) {
+            } else if (layer instanceof L.Polyline) {
                 if (layer.isFlightPlan)
                 {
                     layer.wasEdited = (layer.getLatLngs().length-1 !== layer.speeds.length);
                     applyFlightPlanCallback(layer);
                 }
-            } else if (util.isCircle(layer)) {
+            } else if (layer instanceof L.Circle) {
                 
-            } else if (util.isMarker(layer)) {
+            } else if (layer instanceof L.Marker) {
                 applyTargetInfoCallback(layer);
             }
         });
@@ -1565,11 +1686,23 @@
 
     map.on('draw:editstart', function() {
         state.changing = true;
-        hideChildLayers();
+        hideChildLayers(); 
     });
 
     map.on('draw:editstop', function() {
         state.changing = false;
+        
+        drawnItems.eachLayer(function(layer) {
+            if (layer instanceof L.Marker) {
+                 // Fix for stuck edit box
+                if (L.DomUtil.hasClass(layer._icon, 'leaflet-edit-marker-selected')) {
+                    L.DomUtil.removeClass(layer._icon, 'leaflet-edit-marker-selected');
+                    // Offset as the border will make the icon move.
+                    util.offsetMarker(layer._icon, -4);
+                }
+            }
+        });
+
         showChildLayers();
         checkButtonsDisabled();
     });

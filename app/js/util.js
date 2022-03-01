@@ -44,7 +44,7 @@ module.exports = (function() {
         defaultPopulateArray: function(val, count) {
             var array = [];
             for (var i = 0; i < count; i++) {
-                array.push(val);
+                array.push(parseInt(val));
             }
             return array;
         },
@@ -53,11 +53,13 @@ module.exports = (function() {
             units = units || 'metric';
             distance = typeof distance === 'number' ? distance.toFixed(1) : distance;
             heading = typeof heading === 'number' ? heading.toFixed(0) : heading;
-            return  distance + UNIT_MAP[units].distance + ' | ' + 
+            var textRotation = (heading % 180) - 90;
+            return  '<div style="background: rgba(100, 100, 100, .75); transform: rotate(' + textRotation + 'deg);">' + 
+                distance + UNIT_MAP[units].distance + ' | ' + 
                 calc.pad(heading, 3) + '&deg;/' + 
                 calc.pad(calc.invertHeading(heading), 3) +'&deg; <br/> ' + 
                 speed + UNIT_MAP[units].speed + ' | ' + 
-                'ETE ' + time;
+                'ETE ' + time + '</div>';
         },
 
         formatFlightStartMarker: function(name, altitude, units) {
@@ -71,20 +73,27 @@ module.exports = (function() {
             return Math.round(altitude) + UNIT_MAP[units].altitude;
         },
 
-        isLine: function(layer) {
-            return typeof layer.getLatLngs !== 'undefined';
+        bindPicture: function(url, layer) {
+            var popupContent = document.createElement("img");
+            popupContent.onload = function () {
+                layer.update();
+            };
+            popupContent.src = url;
+            popupContent.width = 700;
+            layer.bindPopup(popupContent, {className: 'popup', maxWidth: "710px", closeButton: false});
         },
 
-        isCircle: function(layer) {
-            return typeof layer.getBounds !== 'undefined';
-        },
-
-        isPolygon: function(layer) { // Always check polygon before polyline
-            return typeof layer.options.isPolygon !== 'undefined';
-        },
-
-        isMarker: function(layer) {
-            return typeof layer.getLatLng !== 'undefined';
+        validUrl: function(string) {
+            var url = require('url');
+            var result;
+  
+            try {
+                result = url.parse(string);
+            } catch (_) {
+              return false;  
+            }
+          
+            return result.protocol === "http:" || result.protocol === "https:";
         },
 
         buildGetXhr: function(url, updateFn) {
@@ -92,6 +101,15 @@ module.exports = (function() {
             xhr.open('GET', url, true);
             xhr.onreadystatechange = updateFn;
             xhr.send(null);
+            return xhr;
+        },
+        
+        buildGetBlobXhr: function(url, updateFn) {
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', url, true);
+            xhr.responseType = 'blob';
+            xhr.onreadystatechange = updateFn;
+            xhr.send();
             return xhr;
         },
 
@@ -143,8 +161,76 @@ module.exports = (function() {
             else {
                 pom.click();
             }
-        }
-        // End download function
+        }, // End download function
+
+        csvConvert: function(array) {
+            var csv="";
+            for (var i = 0; i < array.length; i++)
+            {
+                var row = array[i];
+                // Row is the row of array at index "i"
+                var string = "";
+                // Empty string which will be added later
+                for (var index in row) {
+                    // Traversing each element in the row
+                    var w = row[index];
+                    // Adding the element at index "index" to the string
+                    string += w;
+                    if (index !== row.length - 1) {
+                        string += ",";
+                        // If the element is not the last element , then add a comma
+                    }
+                }
+                string += "\n";
+                // Adding next line at the end
+                csv += string;
+                // adding the string to the final string "csv"
+            }
+            return csv;
+        },
+
+        flightPlanPresent: function (layer) {
+            var present = false;
+            layer.eachLayer(function(e) {
+                if ((e instanceof L.Polyline) && !(e instanceof L.Polygon)) {
+                    if (e.isFlightPlan) {
+                        present = true;
+                    }
+                }
+            });
+            return present;
+        },
+
+        offsetMarker: function (icon, offset) {
+            var iconMarginTop = parseInt(icon.style.marginTop, 10) - offset,
+                iconMarginLeft = parseInt(icon.style.marginLeft, 10) - offset;
+    
+            icon.style.marginTop = iconMarginTop + 'px';
+            icon.style.marginLeft = iconMarginLeft + 'px';
+        },
+        
+        // In the newer, modern tile scheme, this does a decent job of adjusting old mission plans
+        fixOldLatLng: function(latLng, mapConfig, revision) {
+            // Now check revision and update LatLngs if need be
+            if ((typeof revision === 'undefined') || (revision < 2))
+            {
+                latLng.lat = latLng.lat - Math.abs(mapConfig.latMax - mapConfig.latMin) + mapConfig.oldLatFixFactor;
+            }
+            return latLng;
+        },
+
+        fixOldLatLngs: function(latLngs, mapConfig, revision) {
+            // Now check revision and update LatLngs if need be
+            if ((typeof revision === 'undefined') || (revision < 2))
+            {
+                for (var i = 0; i < latLngs.length; i++)
+                {
+                    latLngs[i][0] = latLngs[i][0] - Math.abs(mapConfig.latMax - mapConfig.latMin) + mapConfig.oldLatFixFactor;
+                }
+            }
+
+            return latLngs;
+        },
 
     };
 })();

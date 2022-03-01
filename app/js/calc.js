@@ -2,7 +2,7 @@ module.exports = (function() {
 
     const
         SECONDS_IN_HOUR = 3600,
-        BORDER = 5,
+        BORDER = 20,
         MILE_PER_KM = 0.6213712,
         KM_PER_MILE = 1.609344,
         KM_PER_METER = 0.001,
@@ -12,12 +12,6 @@ module.exports = (function() {
     ;
 
     return {
-
-        distance: function(a, b) {
-            var dLng = b.lng - a.lng;
-            var dLat = b.lat - a.lat;
-            return Math.sqrt(dLng * dLng + dLat * dLat);
-        },
 
         geometricDegreesToGeographic: function(degrees) {
             if (degrees < 0) {
@@ -61,13 +55,13 @@ module.exports = (function() {
         
         tileBounds: function(mapConfig) {
             return [
-                [mapConfig.latMin + 0.01, mapConfig.lngMin + 0.01], // Fix for attempted out of bounds loads
+                [mapConfig.latMin, mapConfig.lngMin],
                 [mapConfig.latMax, mapConfig.lngMax]
             ];
         },
 
         center: function(mapConfig) {
-            return [mapConfig.latMax / 2, mapConfig.lngMax / 2];
+            return [(Math.abs(mapConfig.latMax) - Math.abs(mapConfig.latMin)) / 2, (Math.abs(mapConfig.lngMax) - Math.abs(mapConfig.lngMin)) / 2];
         },
 
         gridLatLng: function(grid, mapConfig) {

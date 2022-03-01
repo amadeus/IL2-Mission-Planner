@@ -4,104 +4,6 @@ module.exports = (function() {
 
     var conf = JSON.parse(fs.readFileSync('dist/conf.json', 'utf8'));
 
-    // Edited original leaflet object
-    var augmentedLeafletDrawLocal = {
-        draw: {
-    		toolbar: {
-    			actions: {
-    				title: 'Cancel',
-    				text: 'Cancel'
-    			},
-    			finish: {
-    				title: 'Finish',
-    				text: 'Finish'
-    			},
-    			undo: {
-    				title: 'Delete last point',
-    				text: 'Delete last point'
-    			},
-    			buttons: {
-    				polyline: 'Map a flight / Draw a polyline',
-    				polygon: 'Draw a polygon',
-    				rectangle: 'Draw a rectangle',
-    				circle: 'Draw a circle',
-    				marker: 'Mark a point'
-    			}
-    		},
-    		handlers: {
-    			circle: {
-    				tooltip: {
-    					start: 'Click and drag to draw circle'
-    				},
-    				radius: 'Radius'
-    			},
-    			marker: {
-    				tooltip: {
-    					start: 'Click to mark a point'
-    				}
-    			},
-    			polygon: {
-    				tooltip: {
-    					start: 'Click to start drawing shape',
-    					cont: 'Click to continue drawing shape',
-    					end: 'Click first point to close this shape'
-    				}
-    			},
-    			polyline: {
-    				error: '<strong>Error:</strong> shape edges cannot cross!',
-    				tooltip: {
-    					start: 'Click to start a flight plan / polyline',
-    					cont: 'Click to continue the flight plan / polyline',
-    					end: 'Click last point to finish flight plan / polyline'
-    				}
-    			},
-    			rectangle: {
-    				tooltip: {
-    					start: 'Click and drag to draw rectangle'
-    				}
-    			},
-    			simpleshape: {
-    				tooltip: {
-    					end: 'Release mouse to finish drawing'
-    				}
-    			}
-    		}
-    	},
-    	edit: {
-    		toolbar: {
-    			actions: {
-    				save: {
-    					title: 'Save changes',
-    					text: 'Save'
-    				},
-    				cancel: {
-    					title: 'Cancel editing, discard all changes',
-    					text: 'Cancel'
-    				}
-    			},
-    			buttons: {
-    				edit: 'Edit map',
-    				editDisabled: 'Nothing to edit',
-    				remove: 'Delete items from the map',
-    				removeDisabled: 'Nothing to delete'
-    			}
-    		},
-    		handlers: {
-    			edit: {
-    				tooltip: {
-    					text: 'Drag items to edit the map',
-    					subtext: null
-    				}
-    			},
-    			remove: {
-    				tooltip: {
-    					text: 'Click to delete items from the map'
-    				}
-    			}
-    		}
-    	}
-    };
-
     var mapConfigs = {
         stalingrad: {
             fullName: 'Stalingrad',
@@ -109,8 +11,9 @@ module.exports = (function() {
             hash: '#stalingrad',
             selectIndex: 0,
             scale: 1.40056,
-            latMin: 0,
-            latMax: 164,
+            oldLatFixFactor: -0.2,
+            latMin: -164,
+            latMax: 0,
             latGridMax: 23,
             lngMin: 0,
             lngMax: 252,
@@ -128,8 +31,9 @@ module.exports = (function() {
             hash: '#moscow',
             selectIndex: 1,
             scale: 1.46621,
-            latMin: 0,
-            latMax: 192,
+            oldLatFixFactor: 0,
+            latMin: -192,
+            latMax: 0,
             latGridMax: 29,
             lngMin: 0,
             lngMax: 192,
@@ -147,8 +51,9 @@ module.exports = (function() {
             hash: '#luki',
             selectIndex: 2,
             scale: 0.65306,
-            latMin: 0,
-            latMax: 160,
+            oldLatFixFactor: 0,
+            latMin: -160,
+            latMax: 0,
             latGridMax: 10.4,
             lngMin: 0,
             lngMax: 254,
@@ -166,8 +71,9 @@ module.exports = (function() {
             hash: '#kuban',
             selectIndex: 3,
             scale: 2.876397232,
-            latMin: 0,
-            latMax: 103,
+            oldLatFixFactor: 3.06,
+            latMin: -103,
+            latMax: 0,
             latGridMax: 29.7,
             lngMin: 0,
             lngMax: 148,
@@ -185,8 +91,9 @@ module.exports = (function() {
             hash: '#rheinland',
             selectIndex: 4,
             scale: 2.876397232,
-            latMin: 0,
-            latMax: 113,
+            oldLatFixFactor: 0.45,
+            latMin: -113,
+            latMax: 0,
             latGridMax: 32.4437,
             lngMin: 0,
             lngMax: 140,
@@ -204,8 +111,9 @@ module.exports = (function() {
             hash: '#arras',
             selectIndex: 5,
             scale: 0.7191,
-            latMin: 0,
-            latMax: 165,
+            oldLatFixFactor: 1.3,
+            latMin: -165,
+            latMax: 0,
             latGridMax: 11.7973,
             lngMin: 0,
             lngMax: 165,
@@ -223,8 +131,9 @@ module.exports = (function() {
             hash: '#prokhorovka',
             selectIndex: 6,
             scale: 0.6491,
-            latMin: 0,
-            latMax: 165,
+            oldLatFixFactor: 1.3,
+            latMin: -165,
+            latMax: 0,
             latGridMax: 10.6484,
             lngMin: 0,
             lngMax: 165,
@@ -243,7 +152,7 @@ module.exports = (function() {
       flightSpeed: 300,
       flightAltitude: 1000,
       flightColor: 'red',
-      pointType: 'point',
+      pointType: 'marker',
       pointColor: 'red',
       pointName: 'New Marker',
       circleColor: 'red',
@@ -264,7 +173,6 @@ module.exports = (function() {
     };
 
     return {
-        augmentedLeafletDrawLocal: augmentedLeafletDrawLocal,
         maps: mapConfigs,
         default: defaults,
         validatinatorConfig: validatinatorConfig,
@@ -273,6 +181,7 @@ module.exports = (function() {
         clearTooltip: 'Clear the map',
         exportTooltip: 'Export mission plan',
         importTooltip: 'Import mission plan',
+        exportCSVTooltip: 'Export Flight Plans to CSV file',
         gridHopTooltip: 'Jump to grid',
         missionHopTooltip: 'Jump to mission',
         settingsTooltip: 'Settings',

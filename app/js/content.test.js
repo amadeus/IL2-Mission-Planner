@@ -12,9 +12,6 @@ describe('content', function() {
     var tests = [
         {
             property: 'maps'
-        },
-        {
-            property: 'augmentedLeafletDrawLocal'
         }
     ];
 

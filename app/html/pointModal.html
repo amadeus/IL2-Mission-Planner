@@ -58,6 +58,14 @@
             <label class="" for="target-notes">Notes</label>
             <textarea id="target-notes" class="u-full-width" value="{notes}">{notes}</textarea>
         </div>
+        <div class="row">
+            <label class="" for="target-photo">Info Picture URL (Destination server must support HTTPS + CORS)</label>
+            <input type="url" id="target-photo" class="u-full-width" value="{photo}">{photo}</input>
+            <button class="modal-test-photo" type="button">Validate</button>
+            <div id="photo-status-hidden" class="row hidden-section">
+                <span id='checkmark' class='fa fa-check modal-icon'></span>
+            </div>
+        </div>
         <div class="row button-row">
             <button class="modal-ok button-primary" type="submit">Okay</button>
             <button class="modal-cancel" type="button">Cancel</button>
