@@ -391,6 +391,7 @@
             orientation = 'flip';
         }
 
+        route.setText(null); // Remove old name if present
         route.setText(route.name, {offset: -10, orientation: orientation, attributes: {class: 'text-path-flight-title', fill: route.color}});
 
         for (var i = 0; i < coords.length-1; i++) {
@@ -863,11 +864,13 @@
 
         var FlightName = 'Flight Name';
         var FlightLeg = 'Flight Leg';
+        var FlightGrid = 'Grid';
+        var FlightKeypad = 'Keypad';
         var FlightHeading = 'Heading';
         var FlightLegDistance = (state.units === 'imperial') ? 'Distance (mi)' : 'Distance (km)';
         var FlightLegSpeed = (state.units === 'imperial') ? 'Speed (mph)' : 'Speed (kph)';
         var FlightLegAltitude = (state.units === 'imperial') ? 'Altitude (ft)' : 'Altitude (m)';
-        csvData.push({FlightName, FlightLeg, FlightHeading, FlightLegDistance, FlightLegSpeed, FlightLegAltitude});
+        csvData.push({FlightName, FlightLeg, FlightGrid, FlightKeypad, FlightHeading, FlightLegDistance, FlightLegSpeed, FlightLegAltitude});
 
         drawnItems.eachLayer(function(layer) {
             if ((layer instanceof L.Polyline) && !(layer instanceof L.Polygon)) {
@@ -875,14 +878,29 @@
                     var coords = layer.getLatLngs();
                     for (var i = 0; i < (coords.length - 1); i++)
                     {
+                        var FlightLocation = calc.latLngGrid(coords[i], mapConfig);
+
                         var FlightName = layer.name;
                         var FlightLeg = (i + 1);
+                        var FlightGrid = FlightLocation[0];
+                        var FlightKeypad = FlightLocation[1];
                         var FlightHeading = Math.round(calc.heading(coords[i], coords[i+1]));
                         var FlightLegDistance = parseFloat(mapConfig.scale * L.CRS.Simple.distance(coords[i], coords[i+1])).toFixed(1);
                         var FlightLegSpeed = Math.round(layer.speeds[i]);
                         var FlightLegAltitude = Math.round(layer.altitudes[i]);
-                        csvData.push({FlightName, FlightLeg, FlightHeading, FlightLegDistance, FlightLegSpeed, FlightLegAltitude});
+                        csvData.push({FlightName, FlightLeg, FlightGrid, FlightKeypad, FlightHeading, FlightLegDistance, FlightLegSpeed, FlightLegAltitude});
                     }
+                    var FlightLocation = calc.latLngGrid(coords[coords.length - 1], mapConfig);
+
+                    var FlightName = layer.name;
+                    var FlightLeg = 'end';
+                    var FlightGrid = FlightLocation[0];
+                    var FlightKeypad = FlightLocation[1];
+                    var FlightHeading = '';
+                    var FlightLegDistance = '';
+                    var FlightLegSpeed = '';
+                    var FlightLegAltitude = Math.round(layer.altitudes[coords.length - 1]);
+                    csvData.push({FlightName, FlightLeg, FlightGrid, FlightKeypad, FlightHeading, FlightLegDistance, FlightLegSpeed, FlightLegAltitude});
                 }
             }
         });
@@ -1145,9 +1163,44 @@
 
     mapConfig = util.getSelectedMapConfig(window.location.hash , content.maps);
     selectedMapIndex = mapConfig.selectIndex;
+/* // Debugging
+    L.CursorHandler = L.Handler.extend({
 
+        addHooks: function () {
+            this._popup = new L.Popup();
+            this._map.on('mouseover', this._open, this);
+            this._map.on('mousemove', this._update, this);
+            this._map.on('mouseout', this._close, this);
+        },
+    
+        removeHooks: function () {
+            this._map.off('mouseover', this._open, this);
+            this._map.off('mousemove', this._update, this);
+            this._map.off('mouseout', this._close, this);
+        },
+        
+        _open: function (e) {
+            this._update(e);
+            this._popup.openOn(this._map);
+        },
+    
+        _close: function () {
+            this._map.closePopup(this._popup);
+        },
+    
+        _update: function (e) {
+            this._popup.setLatLng(e.latlng)
+                .setContent(e.latlng.toString());
+        }
+    
+        
+    });
+    
+    L.Map.addInitHook('addHandler', 'cursor', L.CursorHandler);
+*/
     map = L.map('map', {
         crs: L.CRS.Simple,
+        cursor: true,
         attributionControl: false
     });
 
@@ -1167,7 +1220,19 @@
     frontline = L.featureGroup();
     map.addLayer(frontline);
     hiddenLayers = L.featureGroup();
+/* // Debugging
+    var boundsTestLatLngs = [
+        [mapConfig.latMin, mapConfig.lngMin],
+        [mapConfig.latMin, mapConfig.lngMax],
+        [mapConfig.latMax, mapConfig.lngMax],
+        [mapConfig.latMax, mapConfig.lngMin]
+    ];
 
+    var boundsTestOptions = {color: RED, weight: 2, opacity: FLIGHT_OPACITY, fillOpacity: 0.2};
+    var boundsTestPolygon = L.polygon(boundsTestLatLngs, boundsTestOptions);
+
+    drawnItems.addLayer(boundsTestPolygon);
+*/
     drawControl = new L.Control.Draw({
         draw: {
             polygon: {

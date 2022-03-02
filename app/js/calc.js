@@ -77,6 +77,26 @@ module.exports = (function() {
             return [lat, lng];
         },
 
+        latLngGrid: function(latLng, mapConfig) {
+            var width = mapConfig.lngMax - mapConfig.lngMin;
+            var height = mapConfig.latMax - mapConfig.latMin;
+            
+            var latGridTemp = -1 * ((latLng.lat / height) * mapConfig.latGridMax); // Invert negative latitude map
+            var lngGridTemp = (latLng.lng /  width) * mapConfig.lngGridMax;
+
+            var latGrid = Math.ceil(latGridTemp);
+            var lngGrid = Math.ceil(lngGridTemp);
+
+            var grid = this.pad(latGrid, 2) + this.pad(lngGrid, 2);
+
+            var keypadY = Math.ceil((1 - (latGridTemp % 1)) * 3); // Since top left corner is 0,0 , keypadY needs to be flipped
+            var keypadX = Math.ceil((lngGridTemp % 1) * 3);
+
+            var keypad = ((keypadY * 3) - 2) + (keypadX - 1);
+
+            return [grid, keypad];
+        },
+
         invertHeading: function(heading) {
             return (360 + (heading - 180)) % 360;
         },
