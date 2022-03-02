@@ -998,6 +998,7 @@
         mapConfig = importedMapConfig;
         selectedMapIndex = mapConfig.selectIndex;
         state.units = saveData.units || 'imperial';
+        var newObject = true;
         if (saveData.routes) {
             for (var i = 0; i < saveData.routes.length; i++) {
                 var route = saveData.routes[i];
@@ -1017,7 +1018,7 @@
                 drawnItems.addLayer(newRoute);
                 if (newRoute.isFlightPlan)
                 {
-                    applyFlightPlanCallback(newRoute);
+                    applyFlightPlanCallback(newRoute, newObject);
                 }
             }
         }
@@ -1033,7 +1034,7 @@
                 newPoint.notes = point.notes;
                 newPoint.photo = point.photo;
                 drawnItems.addLayer(newPoint);
-                applyTargetInfoCallback(newPoint);
+                applyTargetInfoCallback(newPoint, newObject);
             }
         }
         if (saveData.circles) {
