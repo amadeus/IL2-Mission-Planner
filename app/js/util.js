@@ -214,7 +214,7 @@ module.exports = (function() {
             // Now check revision and update LatLngs if need be
             if ((typeof revision === 'undefined') || (revision < 2))
             {
-                latLng.lat = latLng.lat - Math.abs(mapConfig.latMax - mapConfig.latMin) + mapConfig.oldLatFixFactor;
+                latLng.lat = latLng.lat - Math.abs(mapConfig.latMax - mapConfig.latMin);
             }
             return latLng;
         },
@@ -225,7 +225,7 @@ module.exports = (function() {
             {
                 for (var i = 0; i < latLngs.length; i++)
                 {
-                    latLngs[i][0] = latLngs[i][0] - Math.abs(mapConfig.latMax - mapConfig.latMin) + mapConfig.oldLatFixFactor;
+                    latLngs[i][0] = latLngs[i][0] - Math.abs(mapConfig.latMax - mapConfig.latMin);
                 }
             }
 
