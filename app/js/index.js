@@ -1200,7 +1200,7 @@
 */
     map = L.map('map', {
         crs: L.CRS.Simple,
-        cursor: true,
+        //cursor: true, // Debugging
         attributionControl: false
     });
 
@@ -1270,6 +1270,9 @@
     L.drawLocal.draw.handlers.polyline.tooltip.start = 'Click to start a flight plan / polyline';
     L.drawLocal.draw.handlers.polyline.tooltip.cont = 'Click to continue the flight plan / polyline';
     L.drawLocal.draw.handlers.polyline.tooltip.end = 'Click last point to finish flight plan / polyline';
+
+    // Fix dragging while drawing polyline/polygon
+    L.Draw.Polyline.prototype._onTouch = L.Util.falseFn;
     
     map.addControl(drawControl);
 
