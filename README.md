@@ -21,7 +21,7 @@ Clone the repository. In the repository directory, run `git submodule init` foll
 Run `npm run develop` and navigate to the dist index file in a web browser (e.g. `file:///path/to/dist/index.html`) to access the site. Beware, this action wipes the dist folder.
 
 ### Updating
-Simply run `npm run dist` again after a `git pull` and merge the updated output files with your webroot.
+Simply run `npm run dist` again after a `git pull` and merge the updated output files with your webroot. If moving up a major version (ex. v1 to v2), repeat the 'Seting up' process instead.
 
 ### Streaming
 
