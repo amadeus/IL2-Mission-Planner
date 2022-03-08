@@ -1471,6 +1471,7 @@
                                     }
                                 });
                                 text.innerHTML = summaryText;
+                                e.modal.update();
                                 L.DomEvent.on(e.modal._container.querySelector('.modal-ok'), 'click', function() {
                                     e.modal.hide();
                                 });
