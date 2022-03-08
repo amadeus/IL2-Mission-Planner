@@ -47,20 +47,6 @@
         streamingAvailable: (conf.streaming === true) ? webdis.init() : false
     };
 
-    // Patch a leaflet bug, see https://github.com/bbecquet/Leaflet.PolylineDecorator/issues/17
-    L.PolylineDecorator.include(L.Evented);
-
-    // CRS.Simple kind of sucks in 0.7.7, lets extend it in case we need to change it
-    L.CRS.SimpleFinite = L.Util.extend({}, L.CRS.Simple, {
-        infinite: false,
-    });
-
-    // We want to reverse the tile Y without messing with any underlying planner code
-    L.CRS.SimpleFlip = L.Util.extend({}, L.CRS.Simple, {
-        transformation: new L.Transformation(1, 0, 1, 0),
-    });
-
-
     // Initialize form validation
     var V = new Validatinator(content.validatinatorConfig);
 
@@ -842,7 +828,7 @@
         if (conf.streaming !== true) {
             disableButtons(buttons);
         }
-        buttons = ['export-excel-button'];
+        buttons = ['summary-button', 'export-excel-button'];
         if (!util.flightPlanPresent(drawnItems)) {
             disableButtons(buttons);
         } else {
@@ -1465,11 +1451,40 @@
                 }
             },
             {
+                id: 'summary-button',
+                icon: 'fa-list',
+                tooltip: content.summaryTooltip,
+                clickFn: function() {
+                    if (util.flightPlanPresent(drawnItems)) {
+                        map.openModal({
+                            template: content.flightSummaryModalTemplate,
+                            onShow: function(e) {
+                                var text = document.getElementById('flight-summary');
+                                text.innerHTML = '';
+                                var summaryText = '';
+                                drawnItems.eachLayer(function(layer) {
+                                    if ((layer instanceof L.Polyline) && !(layer instanceof L.Polygon)) {
+                                        if (layer.isFlightPlan)
+                                        {
+                                            summaryText += util.formatFlightSummary(layer, mapConfig, state.units);
+                                        }
+                                    }
+                                });
+                                text.innerHTML = summaryText;
+                                L.DomEvent.on(e.modal._container.querySelector('.modal-ok'), 'click', function() {
+                                    e.modal.hide();
+                                });
+                            }
+                        });
+                    }
+                }
+            },
+            {
                 id: 'export-excel-button',
                 icon: 'fa-file-excel-o',
                 tooltip: content.exportCSVTooltip,
                 clickFn: function() {
-                    if (!mapIsEmpty() && util.flightPlanPresent(drawnItems)) {
+                    if (util.flightPlanPresent(drawnItems)) {
                         util.download('csv_IL2MPR_r' + EXPORT_REV + '.csv', util.csvConvert(exportMapToCSV()));
                     }
                 }

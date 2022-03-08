@@ -154,6 +154,11 @@ h3.help-header {
     font-weight: 700;
 }
 
+.summary {
+    font-weight: 600;
+    font-size: 1.1em;
+}
+
 a.streaming {
     color: green;
 }

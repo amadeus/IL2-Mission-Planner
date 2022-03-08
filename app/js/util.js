@@ -72,7 +72,50 @@ module.exports = (function() {
             units = units || 'metric';
             return Math.round(altitude) + UNIT_MAP[units].altitude;
         },
+        
+        formatFlightSummary: function(layer, mapConfig, units) {
+            var summaryText = '<h3>' + layer.name + '</h3><ol class="summary">';
+            var coords = layer.getLatLngs();
+            for (var i = 0; i < (coords.length - 1); i++)
+            {
+                var altDiff = calc.altitudeUnitAdjust(Math.abs(layer.altitudes[i] - layer.altitudes[i+1]), units);
+                var FlightLocation = calc.latLngGrid(coords[i], mapConfig);
 
+                if (i === 0)
+                {
+                    summaryText += '<li>Beginning flight at ' + Math.round(layer.altitudes[0]) + UNIT_MAP[units].altitude + ' in grid ';
+                }
+                else
+                {
+                    summaryText += '<li>From grid ';
+                }
+                summaryText += FlightLocation[0] + '.' + FlightLocation[1];
+                summaryText += ', fly heading ' + calc.pad(Math.round(calc.heading(coords[i], coords[i+1])), 3);
+                summaryText += ' at ' + Math.round(layer.speeds[i]) + ' ' + UNIT_MAP[units].speed;
+                summaryText += ' for ' + this.formatTime(calc.time(Math.round(layer.speeds[i]), parseFloat(mapConfig.scale * L.CRS.Simple.distance(coords[i], coords[i+1])) + parseFloat(altDiff))) + ' minutes while';
+
+                if (layer.altitudes[i] === layer.altitudes[i + 1])
+                {
+                    summaryText += ' maintaining ';
+                }
+                else if (layer.altitudes[i] < layer.altitudes[i + 1])
+                {
+                    summaryText += ' climbing to ';
+                }
+                else
+                {
+                    summaryText += ' descending to ';
+                }
+                summaryText += Math.round(layer.altitudes[i + 1]) + UNIT_MAP[units].altitude + '. ';
+                summaryText += parseFloat(mapConfig.scale * L.CRS.Simple.distance(coords[i], coords[i+1])).toFixed(1) + UNIT_MAP[units].distance + ' traveled.</li>';
+            }
+            var FlightLocation = calc.latLngGrid(coords[coords.length - 1], mapConfig);
+            summaryText += '<li>End flight in grid ' + FlightLocation[0] + '.' + FlightLocation[1] + ' at ' + Math.round(layer.altitudes[coords.length - 1]) + UNIT_MAP[units].altitude + '.</li>';
+            summaryText += '</ol>';
+
+            return summaryText;
+        },
+        
         bindPicture: function(url, layer) {
             var popupContent = document.createElement("img");
             popupContent.onload = function () {
