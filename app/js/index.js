@@ -1475,6 +1475,15 @@
                                 L.DomEvent.on(e.modal._container.querySelector('.modal-ok'), 'click', function() {
                                     e.modal.hide();
                                 });
+                                L.DomEvent.on(e.modal._container.querySelector('.modal-print'), 'click', function() {
+                                    var summaryPrint = window.open('', '', 'height=700, width=700');
+                                    summaryPrint.document.write('<html>');
+                                    summaryPrint.document.write('<body >');
+                                    summaryPrint.document.write(summaryText);
+                                    summaryPrint.document.write('</body></html>');
+                                    summaryPrint.document.close();
+                                    summaryPrint.print();
+                                });
                             }
                         });
                     }
