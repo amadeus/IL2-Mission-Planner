@@ -1267,7 +1267,7 @@
     map.addControl(titleControl);
 
     var clearButton = new L.Control.CustomToolbar({
-        position: 'bottomleft',
+        position: 'topleft',
         buttons: [
             {
                 id: 'clear-button',
@@ -1397,7 +1397,7 @@
     map.addControl(helpSettingsToolbar);
 
     var importExportToolbar = new L.Control.CustomToolbar({
-        position: 'bottomleft',
+        position: 'bottomright',
         buttons: [
             {
                 id: 'import-button',
