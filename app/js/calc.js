@@ -2,7 +2,7 @@ module.exports = (function() {
 
     const
         SECONDS_IN_HOUR = 3600,
-        BORDER = 20,
+        BORDER = 40,
         MILE_PER_KM = 0.6213712,
         KM_PER_MILE = 1.609344,
         KM_PER_METER = 0.001,

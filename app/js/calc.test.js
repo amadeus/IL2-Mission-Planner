@@ -153,7 +153,7 @@ describe('calc', function() {
                     lngMin: 0,
                     lngMax: 10
                 },
-                expected: [[-20, -20], [30, 30]]
+                expected: [[-40, -40], [50, 50]]
             },
             {
                 given: {
@@ -162,7 +162,7 @@ describe('calc', function() {
                     lngMin: 0,
                     lngMax: 100
                 },
-                expected: [[-20, -20], [120, 120]]
+                expected: [[-40, -40], [140, 140]]
             }
         ];
 

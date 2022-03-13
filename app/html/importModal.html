@@ -6,8 +6,16 @@
         <div class="row">
             <input id="import-file" type="file" name="importFile"></input>
         </div>
+        <div class="row">
+            <div class="five columns">
+                <label class="checkbox-label" for="merge-checkbox">Merge to current mission: (Must use same map)</label>
+            </div>
+            <div class="two columns">
+                <input id="merge-checkbox" name="merge-checkbox" type="checkbox">
+            </div>
+        </div>
         <div class="row buttom-row">
-            <button class="modal-ok button-primary" type="submit">Import</button>
+            <button id="import-button" class="modal-ok button-primary" type="submit">Import</button>
             <button class="modal-cancel">Cancel</button>
         </div>
     </form>

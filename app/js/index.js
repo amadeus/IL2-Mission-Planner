@@ -976,13 +976,24 @@
         return classes;
     }
 
-    function importMapState(saveData) {
-        clearMap();
+    function importMapState(saveData, keepExisting) {
+        var keep = keepExisting && (saveData.mapHash === window.location.hash);
+        if (!keep)
+        {
+            clearMap();
+        }
         var revision = saveData.revision;
         var importedMapConfig = util.getSelectedMapConfig(saveData.mapHash, content.maps);
         selectMap(importedMapConfig);
         mapConfig = importedMapConfig;
         selectedMapIndex = mapConfig.selectIndex;
+        if (keep)
+        {
+            if (state.units !== saveData.units)
+            {
+                changeUnits(saveData.units);
+            }
+        }        
         state.units = saveData.units || 'imperial';
         var newObject = true;
         if (saveData.routes) {
@@ -1133,7 +1144,7 @@
                 if (xhr.readyState === 4){
                     if (xhr.response !== "") {
                         responseBody = JSON.parse(xhr.responseText);
-                        importMapState(responseBody);
+                        importMapState(responseBody, false);
                         fitViewToMission();
                         checkButtonsDisabled();
                     }
@@ -1188,7 +1199,9 @@
     map = L.map('map', {
         crs: L.CRS.Simple,
         //cursor: true, // Debugging
-        attributionControl: false
+        attributionControl: false,
+        zoomDelta: 0.25,
+        zoomSnap: 0
     });
 
     mapTiles = L.tileLayer(mapConfig.tileUrl, {
@@ -1408,6 +1421,8 @@
                         template: content.importModalTemplate,
                         onShow: function(e) {
                             var importInput = document.getElementById('import-file');
+                            var importButton = document.getElementById('import-button');
+                            var mergeCheckbox = document.getElementById('merge-checkbox');
                             importInput.focus();
                             var fileContent;
                             L.DomEvent.on(importInput, 'change', function(evt) {
@@ -1425,10 +1440,13 @@
                                 reader.readAsText(evt.target.files[0]);
                             });
                             L.DomEvent.on(e.modal._container.querySelector('.modal-ok'), 'click', function() {
-                                var saveData = JSON.parse(fileContent);
-                                importMapState(saveData);
-                                e.modal.hide();
-                                fitViewToMission();
+                                if (fileContent !== undefined)
+                                {
+                                    var saveData = JSON.parse(fileContent);
+                                    importMapState(saveData, mergeCheckbox.checked);
+                                    e.modal.hide();
+                                    fitViewToMission();
+                                }
                             });
                             L.DomEvent.on(e.modal._container.querySelector('.modal-cancel'), 'click', function() {
                                 e.modal.hide();
@@ -1608,7 +1626,7 @@
                                         }
                                         state.streamInfo.code = code;
                                         clearMap();
-                                        importMapState(JSON.parse(response[2]));
+                                        importMapState(JSON.parse(response[2]), false);
                                         state.streaming = true;
                                         util.addClass(document.querySelector('a.fa-share-alt'), 'streaming');
                                     } else {
@@ -1627,7 +1645,7 @@
                                         }
                                         webdis.subscribe(response[1]);
                                         clearMap();
-                                        importMapState(JSON.parse(response[2]));
+                                        importMapState(JSON.parse(response[2]), false);
                                         state.connected = response[1];
                                         util.addClass(document.querySelector('a.fa-share-alt'), 'connected');
                                         startConnectedMode();
@@ -1826,7 +1844,7 @@
         var saveData = e.detail;
         if (saveData !== 1) {
             clearMap();
-            importMapState(JSON.parse(saveData));
+            importMapState(JSON.parse(saveData), false);
         }
         util.removeClass(document.querySelector('a.fa-share-alt'), 'stream-error');
         checkButtonsDisabled();
