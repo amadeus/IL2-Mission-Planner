@@ -543,7 +543,7 @@
                     }
                     else
                     {
-                        route.interactive = false;
+                        //route.options.clickable = false; // Too late to apply, and also can break deletion
                     }
                 } else if (newFlight) {
                     drawnItems.removeLayer(route);

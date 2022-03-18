@@ -119,10 +119,17 @@ module.exports = (function() {
         bindPicture: function(url, layer) {
             var popupContent = document.createElement("img");
             popupContent.onload = function () {
+                if (this.naturalHeight >= 700)
+                {
+                    popupContent.height = 700;
+                }
+                else
+                {
+                    popupContent.width = 700;
+                }
                 layer.update();
             };
             popupContent.src = url;
-            popupContent.width = 700;
             layer.bindPopup(popupContent, {className: 'popup', maxWidth: "710px", closeButton: false});
         },
 
