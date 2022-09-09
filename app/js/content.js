@@ -151,7 +151,7 @@ module.exports = (function() {
             lngMax: 125.51,
             lngGridMax: 31.1306,
             gridHopZoom: 6,
-            defaultZoom: 4,
+            defaultZoom: 3,
             minZoom: 2,
             maxZoom: 7,
             tileUrl: conf.tilesUrl + '/normandy/{z}/{x}/{y}.png'
@@ -170,7 +170,7 @@ module.exports = (function() {
             lngMax: 125.51,
             lngGridMax: 31.1306,
             gridHopZoom: 6,
-            defaultZoom: 4,
+            defaultZoom: 3,
             minZoom: 2,
             maxZoom: 7,
             tileUrl: conf.tilesUrl + '/normandy-early/{z}/{x}/{y}.png'
