@@ -137,6 +137,44 @@ module.exports = (function() {
             maxZoom: 6,
             tileUrl: conf.tilesUrl + '/prokhorovka/{z}/{x}/{y}.png'
             //tileUrl: 'http://localhost:5001/prokhorovka/{z}/{x}/{y}.png'
+        },
+        normandy: {
+            fullName: 'Normandy',
+            name: 'normandy',
+            hash: '#normandy',
+            selectIndex: 7,
+            scale: 2.48099,
+            latMin: -139.87,
+            latMax: 0,
+            latGridMax: 34.4437,
+            lngMin: 0,
+            lngMax: 125.51,
+            lngGridMax: 31.1306,
+            gridHopZoom: 6,
+            defaultZoom: 4,
+            minZoom: 2,
+            maxZoom: 7,
+            tileUrl: conf.tilesUrl + '/normandy/{z}/{x}/{y}.png'
+            //tileUrl: 'http://localhost:5001/normandy/{z}/{x}/{y}.png'
+        },
+        normandy_early: {
+            fullName: 'Normandy_Early',
+            name: 'normandy_early',
+            hash: '#normandy_early',
+            selectIndex: 8,
+            scale: 2.48099,
+            latMin: -139.87,
+            latMax: 0,
+            latGridMax: 34.4437,
+            lngMin: 0,
+            lngMax: 125.51,
+            lngGridMax: 31.1306,
+            gridHopZoom: 6,
+            defaultZoom: 4,
+            minZoom: 2,
+            maxZoom: 7,
+            tileUrl: conf.tilesUrl + '/normandy-early/{z}/{x}/{y}.png'
+            //tileUrl: 'http://localhost:5001/normandy-early/{z}/{x}/{y}.png'
         }
     };
 
