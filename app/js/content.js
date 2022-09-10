@@ -175,6 +175,44 @@ module.exports = (function() {
             maxZoom: 7,
             tileUrl: conf.tilesUrl + '/normandy-early/{z}/{x}/{y}.png'
             //tileUrl: 'http://localhost:5001/normandy-early/{z}/{x}/{y}.png'
+        },
+        lapino: {
+            fullName: 'Lapino',
+            name: 'lapino',
+            hash: '#lapino',
+            selectIndex: 9,
+            scale: 0.2,
+            latMin: -260,
+            latMax: 0,
+            latGridMax: 5.1225,
+            lngMin: 0,
+            lngMax: 260,
+            lngGridMax: 5.1225,
+            gridHopZoom: 3,
+            defaultZoom: 3,
+            minZoom: 2,
+            maxZoom: 3,
+            tileUrl: conf.tilesUrl + '/lapino/{z}/{x}/{y}.png'
+            //tileUrl: 'http://localhost:5001/lapino/{z}/{x}/{y}.png'
+        },
+        Novosokolniki: {
+            fullName: 'Novosokolniki',
+            name: 'novosokolniki',
+            hash: '#novosokolniki',
+            selectIndex: 10,
+            scale: 0.2,
+            latMin: -260,
+            latMax: 0,
+            latGridMax: 5.1225,
+            lngMin: 0,
+            lngMax: 260,
+            lngGridMax: 5.1225,
+            gridHopZoom: 3,
+            defaultZoom: 3,
+            minZoom: 2,
+            maxZoom: 3,
+            tileUrl: conf.tilesUrl + '/novosokolniki/{z}/{x}/{y}.png'
+            //tileUrl: 'http://localhost:5001/novosokolniki/{z}/{x}/{y}.png'
         }
     };
 
