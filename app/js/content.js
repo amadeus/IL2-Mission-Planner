@@ -195,7 +195,7 @@ module.exports = (function() {
             tileUrl: conf.tilesUrl + '/lapino/{z}/{x}/{y}.png'
             //tileUrl: 'http://localhost:5001/lapino/{z}/{x}/{y}.png'
         },
-        Novosokolniki: {
+        novosokolniki: {
             fullName: 'Novosokolniki',
             name: 'novosokolniki',
             hash: '#novosokolniki',
