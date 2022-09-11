@@ -7,16 +7,24 @@ module.exports = function(leaflet) {
     ;
 
     function buildIconUrl(type, color) {
-        return URL_PREFIX + color + URL_DELIM + type + URL_SUFFIX;
+        if (color === '') {
+            return URL_PREFIX + type + URL_SUFFIX;
+        }
+        else {
+            return URL_PREFIX + color + URL_DELIM + type + URL_SUFFIX;
+        }
     }
 
     return {
         factory: function(type, color) {
-            if (color === 'black' && (this._isRandomExpertIcon(type) || this._isTawIcon(type)) ) {
+            if (color !== undefined && this._isCoalitionIcon(type)) {
+                color = '';
+            }
+            else if (color === 'black' && (this._isRandomExpertIcon(type) || this._isTawIcon(type) || this._isStockIcon(type)) ) {
                 color = 'blue';
             }
             var iconOpts = {
-                iconSize: type === 're-point-active' ? [40, 60] : [32, 32],
+                iconSize: type === 're-point-active' ? [40, 60] : [36, 36],
                 iconUrl: buildIconUrl(type, color),
             };
             return leaflet.icon(iconOpts);
@@ -34,6 +42,12 @@ module.exports = function(leaflet) {
         },
         _isTawIcon: function(type) {
             return type.substring(0, 3) === 'taw' && type !== 'taw-af';
+        },
+        _isStockIcon: function(type) {
+            return type.substring(0, 5) === 'stock';
+        },
+        _isCoalitionIcon: function(type) {
+            return type.substring(type.length - 5) === 'spawn';
         }
     };
 };

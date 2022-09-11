@@ -588,7 +588,7 @@
             else if (target.color === 'blue'){
                 markerColor = BLUE;
             }
-            if ((target.type === 'taw-af') || (target.type === 're-af'))
+            if ((target.type === 'taw-af') || (target.type === 're-af') || (target.type.substring(target.type.length - 5) === 'spawn'))
             {
                 var nameMarker = L.marker(nameCoords, {
                     draggable: false,
