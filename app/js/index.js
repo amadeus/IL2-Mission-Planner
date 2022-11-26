@@ -217,7 +217,7 @@
                         if (marker.priorMarkerId !== 0)
                         {
                             var altDiff = calc.altitudeUnitAdjust(Math.abs(parentRoute.altitudes[marker.index] - parentRoute.altitudes[marker.index-1]), state.units);
-                            //var gndDistance = mapConfig.scale * L.CRS.Simple.distance(coords[marker.index], coords[marker.index-1]);
+                            //var gndDistance = calc.convertMetricScale(mapConfig.scale, state.units) * L.CRS.Simple.distance(coords[marker.index], coords[marker.index-1]);
                             //var airDistance = parseFloat(altDiff) + parseFloat(gndDistance);
 
                             var priorMarker = drawnMarkers.getLayer(marker.priorMarkerId);
@@ -227,7 +227,7 @@
                         if (marker.followingMarkerId !== 0)
                         {
                             altDiff = calc.altitudeUnitAdjust(Math.abs(parentRoute.altitudes[marker.index] - parentRoute.altitudes[marker.index+1]), state.units);
-                            //gndDistance = mapConfig.scale * L.CRS.Simple.distance(coords[marker.index], coords[marker.index-1]);
+                            //gndDistance = calc.convertMetricScale(mapConfig.scale, state.units) * L.CRS.Simple.distance(coords[marker.index], coords[marker.index-1]);
                             //airDistance = parseFloat(altDiff) + parseFloat(gndDistance);
 
                             var followingMarker = drawnMarkers.getLayer(marker.followingMarkerId);
@@ -382,7 +382,7 @@
 
         for (var i = 0; i < coords.length-1; i++) {
             var altDiff = calc.altitudeUnitAdjust(Math.abs(route.altitudes[i] - route.altitudes[i+1]), state.units);
-            var gndDistance = mapConfig.scale * L.CRS.Simple.distance(coords[i], coords[i+1]);
+            var gndDistance = calc.convertMetricScale(mapConfig.scale, state.units) * L.CRS.Simple.distance(coords[i], coords[i+1]);
             var airDistance = parseFloat(altDiff) + parseFloat(gndDistance);
             var heading = calc.heading(coords[i], coords[i+1]);
             var midpoint = calc.midpoint(coords[i], coords[i+1]);
@@ -871,7 +871,7 @@
                         var FlightGrid = FlightLocation[0];
                         var FlightKeypad = FlightLocation[1];
                         var FlightHeading = Math.round(calc.heading(coords[i], coords[i+1]));
-                        var FlightLegDistance = parseFloat(mapConfig.scale * L.CRS.Simple.distance(coords[i], coords[i+1])).toFixed(1);
+                        var FlightLegDistance = parseFloat(calc.convertMetricScale(mapConfig.scale, state.units) * L.CRS.Simple.distance(coords[i], coords[i+1])).toFixed(1);
                         var FlightLegSpeed = Math.round(layer.speeds[i]);
                         var FlightLegAltitude = Math.round(layer.altitudes[i]);
                         csvData.push({FlightName, FlightLeg, FlightGrid, FlightKeypad, FlightHeading, FlightLegDistance, FlightLegSpeed, FlightLegAltitude});

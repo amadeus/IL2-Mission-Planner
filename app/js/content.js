@@ -213,6 +213,25 @@ module.exports = (function() {
             maxZoom: 3,
             tileUrl: conf.tilesUrl + '/novosokolniki/{z}/{x}/{y}.png'
             //tileUrl: 'http://localhost:5001/novosokolniki/{z}/{x}/{y}.png'
+        },
+        western_front: {
+            fullName: 'Western Front',
+            name: 'western_front',
+            hash: '#western_front',
+            selectIndex: 11,
+            scale: 1.6493,
+            latMin: -170.73,
+            latMax: 0,
+            latGridMax: 28.1521,
+            lngMin: 0,
+            lngMax: 217.29,
+            lngGridMax: 35.8299,
+            gridHopZoom: 5,
+            defaultZoom: 3,
+            minZoom: 2,
+            maxZoom: 6,
+            tileUrl: conf.tilesUrl + '/western_front/{z}/{x}/{y}.png'
+            //tileUrl: 'http://localhost:5001/western_front/{z}/{x}/{y}.png'
         }
     };
 

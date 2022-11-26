@@ -120,5 +120,14 @@ module.exports = (function() {
             var factor = units === 'metric' ? KM_PER_METER : MILE_PER_FT;
             return (value * factor).toFixed(4);
         },
+        convertMetricScale: function(value, units) {
+            if (units === 'metric') {
+                return value.toFixed(4);
+            }
+            else {
+                var factor = MILE_PER_KM;
+                return (value * factor).toFixed(2);
+            }
+        },
     };
 })();
