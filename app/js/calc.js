@@ -122,7 +122,7 @@ module.exports = (function() {
         },
         convertMetricScale: function(value, units) {
             if (units === 'metric') {
-                return value.toFixed(5);
+                return value;
             }
             else {
                 var factor = MILE_PER_KM;
