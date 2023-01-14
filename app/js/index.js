@@ -1289,8 +1289,8 @@
 
   // map.addControl(drawControl);
 
-  var titleControl = new L.Control.TitleControl({});
-  map.addControl(titleControl);
+  // var titleControl = new L.Control.TitleControl({});
+  // map.addControl(titleControl);
 
   // var clearButton = new L.Control.CustomToolbar({
   //   position: 'topleft',
