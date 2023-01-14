@@ -1245,38 +1245,38 @@
 
     drawnItems.addLayer(boundsTestPolygon);
 */
-  // drawControl = new L.Control.Draw({
-  //   draw: {
-  //     polygon: {
-  //       showLength: false,
-  //       shapeOptions: LINE_OPTIONS,
-  //     },
-  //     rectangle: false,
-  //     circle: {
-  //       showRadius: false,
-  //       shapeOptions: CIRCLE_OPTIONS,
-  //     },
-  //     polyline: {
-  //       showLength: false,
-  //       shapeOptions: LINE_OPTIONS,
-  //     },
-  //     marker: {
-  //       icon: icons.factory(content.default.pointType, content.default.pointColor),
-  //     },
-  //     circlemarker: false,
-  //   },
-  //   edit: {
-  //     featureGroup: drawnItems,
-  //     edit: {
-  //       // L.Browser.touch is now always true, so it can't be used to detect touchscreens and disable the edit bar.
-  //       selectedPathOptions: {
-  //         maintainColor: true,
-  //         opacity: 0.4,
-  //         fill: false,
-  //       },
-  //     },
-  //   },
-  // });
+  drawControl = new L.Control.Draw({
+    draw: {
+      polygon: {
+        showLength: false,
+        shapeOptions: LINE_OPTIONS,
+      },
+      rectangle: false,
+      circle: {
+        showRadius: false,
+        shapeOptions: CIRCLE_OPTIONS,
+      },
+      polyline: {
+        showLength: false,
+        shapeOptions: LINE_OPTIONS,
+      },
+      marker: {
+        icon: icons.factory(content.default.pointType, content.default.pointColor),
+      },
+      circlemarker: false,
+    },
+    edit: {
+      featureGroup: drawnItems,
+      edit: {
+        // L.Browser.touch is now always true, so it can't be used to detect touchscreens and disable the edit bar.
+        selectedPathOptions: {
+          maintainColor: true,
+          opacity: 0.4,
+          fill: false,
+        },
+      },
+    },
+  });
 
   // Extend the draw UI with our own text
   L.drawLocal.draw.toolbar.buttons.polyline = 'Map a flight / Draw a polyline';
@@ -1287,484 +1287,484 @@
   // Fix dragging while drawing polyline/polygon
   L.Draw.Polyline.prototype._onTouch = L.Util.falseFn;
 
-  // map.addControl(drawControl);
+  map.addControl(drawControl);
 
-  // var titleControl = new L.Control.TitleControl({});
-  // map.addControl(titleControl);
+  var titleControl = new L.Control.TitleControl({});
+  map.addControl(titleControl);
 
-  // var clearButton = new L.Control.CustomToolbar({
-  //   position: 'topleft',
-  //   buttons: [
-  //     {
-  //       id: 'clear-button',
-  //       icon: 'fa-trash',
-  //       tooltip: content.clearTooltip,
-  //       clickFn: function () {
-  //         if (!mapIsEmpty()) {
-  //           map.openModal({
-  //             template: content.confirmClearModalTemplate,
-  //             onShow: function (e) {
-  //               var element = document.getElementById('confirm-cancel-button');
-  //               element.focus();
-  //               L.DomEvent.on(e.modal._container.querySelector('.modal-ok'), 'click', function () {
-  //                 clearMap();
-  //                 e.modal.hide();
-  //               });
-  //               L.DomEvent.on(e.modal._container.querySelector('.modal-cancel'), 'click', function () {
-  //                 e.modal.hide();
-  //               });
-  //             },
-  //             onHide: function () {
-  //               checkButtonsDisabled();
-  //             },
-  //           });
-  //         }
-  //       },
-  //     },
-  //   ],
-  // });
-  // map.addControl(clearButton);
+  var clearButton = new L.Control.CustomToolbar({
+    position: 'topleft',
+    buttons: [
+      {
+        id: 'clear-button',
+        icon: 'fa-trash',
+        tooltip: content.clearTooltip,
+        clickFn: function () {
+          if (!mapIsEmpty()) {
+            map.openModal({
+              template: content.confirmClearModalTemplate,
+              onShow: function (e) {
+                var element = document.getElementById('confirm-cancel-button');
+                element.focus();
+                L.DomEvent.on(e.modal._container.querySelector('.modal-ok'), 'click', function () {
+                  clearMap();
+                  e.modal.hide();
+                });
+                L.DomEvent.on(e.modal._container.querySelector('.modal-cancel'), 'click', function () {
+                  e.modal.hide();
+                });
+              },
+              onHide: function () {
+                checkButtonsDisabled();
+              },
+            });
+          }
+        },
+      },
+    ],
+  });
+  map.addControl(clearButton);
 
-  // var helpSettingsToolbar = new L.Control.CustomToolbar({
-  //   position: 'bottomright',
-  //   buttons: [
-  //     {
-  //       id: 'settings-button',
-  //       icon: 'fa-gear',
-  //       tooltip: content.settingsTooltip,
-  //       clickFn: function () {
-  //         map.openModal({
-  //           template: content.settingsModalTemplate,
-  //           onShow: function (e) {
-  //             var mapSelect = document.getElementById('map-select');
-  //             mapSelect.selectedIndex = selectedMapIndex;
-  //             var originalIndex = selectedMapIndex;
-  //
-  //             var styleSelect = document.getElementById('style-select');
-  //             var originalStyleValue = state.style;
-  //             styleSelect.value = originalStyleValue;
-  //
-  //             var invertCheckbox = document.getElementById('invert-text-checkbox');
-  //             invertCheckbox.checked = state.colorsInverted;
-  //
-  //             var unitsSelect = document.getElementById('units-select');
-  //             var originalUnitValue = state.units;
-  //             unitsSelect.value = originalUnitValue;
-  //
-  //             var backgroundCheckbox = document.getElementById('text-background-checkbox');
-  //             backgroundCheckbox.checked = state.showBackground;
-  //             mapSelect.focus();
-  //
-  //             L.DomEvent.on(e.modal._container.querySelector('.modal-ok'), 'click', function () {
-  //               if (mapSelect.selectedIndex !== originalIndex) {
-  //                 var selectedMap = mapSelect.options[mapSelect.selectedIndex].value;
-  //                 mapConfig = content.maps[selectedMap];
-  //                 selectMap(mapConfig);
-  //                 selectedMapIndex = mapSelect.selectedIndex;
-  //                 publishMapState();
-  //               }
-  //               if (styleSelect.value !== originalStyleValue) {
-  //                 changeStyle(styleSelect.value);
-  //               }
-  //               if (unitsSelect.value !== originalUnitValue) {
-  //                 changeUnits(unitsSelect.value);
-  //               }
-  //               if (state.style === 'classic') {
-  //                 if (invertCheckbox.checked !== state.colorsInverted) {
-  //                   state.colorsInverted = invertCheckbox.checked;
-  //                   var textElements = document.getElementsByClassName('map-text');
-  //                   for (var i = 0; i < textElements.length; i++) {
-  //                     if (state.colorsInverted) {
-  //                       textElements[i].classList.add('inverted');
-  //                     } else {
-  //                       textElements[i].classList.remove('inverted');
-  //                     }
-  //                   }
-  //                 }
-  //                 if (backgroundCheckbox.checked !== state.showBackground) {
-  //                   state.showBackground = backgroundCheckbox.checked;
-  //                   var textElements = document.getElementsByClassName('map-text');
-  //                   for (var i = 0; i < textElements.length; i++) {
-  //                     if (state.showBackground) {
-  //                       textElements[i].classList.remove('nobg');
-  //                     } else {
-  //                       textElements[i].classList.add('nobg');
-  //                     }
-  //                   }
-  //                 }
-  //               }
-  //               e.modal.hide();
-  //             });
-  //             L.DomEvent.on(e.modal._container.querySelector('.modal-cancel'), 'click', function () {
-  //               e.modal.hide();
-  //             });
-  //           },
-  //         });
-  //       },
-  //     },
-  //     {
-  //       id: 'help-button',
-  //       icon: 'fa-question',
-  //       tooltip: content.helpTooltip,
-  //       clickFn: function () {
-  //         map.openModal({
-  //           template: content.helpModalTemplate,
-  //           onShow: function (e) {
-  //             L.DomEvent.on(e.modal._container.querySelector('.modal-ok'), 'click', function () {
-  //               e.modal.hide();
-  //             });
-  //           },
-  //         });
-  //       },
-  //     },
-  //   ],
-  // });
-  // map.addControl(helpSettingsToolbar);
+  var helpSettingsToolbar = new L.Control.CustomToolbar({
+    position: 'bottomright',
+    buttons: [
+      {
+        id: 'settings-button',
+        icon: 'fa-gear',
+        tooltip: content.settingsTooltip,
+        clickFn: function () {
+          map.openModal({
+            template: content.settingsModalTemplate,
+            onShow: function (e) {
+              var mapSelect = document.getElementById('map-select');
+              mapSelect.selectedIndex = selectedMapIndex;
+              var originalIndex = selectedMapIndex;
 
-  // var importExportToolbar = new L.Control.CustomToolbar({
-  //   position: 'bottomright',
-  //   buttons: [
-  //     {
-  //       id: 'import-button',
-  //       icon: 'fa-upload',
-  //       tooltip: content.importTooltip,
-  //       clickFn: function () {
-  //         map.openModal({
-  //           template: content.importModalTemplate,
-  //           onShow: function (e) {
-  //             var importInput = document.getElementById('import-file');
-  //             var importButton = document.getElementById('import-button');
-  //             var mergeCheckbox = document.getElementById('merge-checkbox');
-  //             importInput.focus();
-  //             var fileContent;
-  //             L.DomEvent.on(importInput, 'change', function (evt) {
-  //               var reader = new window.FileReader();
-  //               reader.onload = function (evt) {
-  //                 if (evt.target.readyState !== 2) {
-  //                   return;
-  //                 }
-  //                 if (evt.target.error) {
-  //                   window.alert('Error while reading file');
-  //                   return;
-  //                 }
-  //                 fileContent = evt.target.result;
-  //               };
-  //               reader.readAsText(evt.target.files[0]);
-  //             });
-  //             L.DomEvent.on(e.modal._container.querySelector('.modal-ok'), 'click', function () {
-  //               if (fileContent !== undefined) {
-  //                 var saveData = JSON.parse(fileContent);
-  //                 importMapState(saveData, mergeCheckbox.checked);
-  //                 e.modal.hide();
-  //                 fitViewToMission();
-  //               }
-  //             });
-  //             L.DomEvent.on(e.modal._container.querySelector('.modal-cancel'), 'click', function () {
-  //               e.modal.hide();
-  //             });
-  //           },
-  //           onHide: function () {
-  //             checkButtonsDisabled();
-  //           },
-  //         });
-  //       },
-  //     },
-  //     {
-  //       id: 'export-button',
-  //       icon: 'fa-download',
-  //       tooltip: content.exportTooltip,
-  //       clickFn: function () {
-  //         if (!mapIsEmpty()) {
-  //           util.download('plan_IL2MPR_r' + EXPORT_REV + '.json', JSON.stringify(exportMapState()));
-  //         }
-  //       },
-  //     },
-  //     {
-  //       id: 'summary-button',
-  //       icon: 'fa-list',
-  //       tooltip: content.summaryTooltip,
-  //       clickFn: function () {
-  //         if (util.flightPlanPresent(drawnItems)) {
-  //           map.openModal({
-  //             template: content.flightSummaryModalTemplate,
-  //             onShow: function (e) {
-  //               var text = document.getElementById('flight-summary');
-  //               text.innerHTML = '';
-  //               var summaryText = '';
-  //               drawnItems.eachLayer(function (layer) {
-  //                 if (layer instanceof L.Polyline && !(layer instanceof L.Polygon)) {
-  //                   if (layer.isFlightPlan) {
-  //                     summaryText += util.formatFlightSummary(layer, mapConfig, state.units);
-  //                   }
-  //                 }
-  //               });
-  //               text.innerHTML = summaryText;
-  //               e.modal.update();
-  //               L.DomEvent.on(e.modal._container.querySelector('.modal-ok'), 'click', function () {
-  //                 e.modal.hide();
-  //               });
-  //               L.DomEvent.on(e.modal._container.querySelector('.modal-print'), 'click', function () {
-  //                 var summaryPrint = window.open('', '', 'height=700, width=700');
-  //                 summaryPrint.document.write('<html>');
-  //                 summaryPrint.document.write('<body >');
-  //                 summaryPrint.document.write(summaryText);
-  //                 summaryPrint.document.write('</body></html>');
-  //                 summaryPrint.document.close();
-  //                 summaryPrint.print();
-  //               });
-  //             },
-  //           });
-  //         }
-  //       },
-  //     },
-  //     {
-  //       id: 'export-excel-button',
-  //       icon: 'fa-file-excel-o',
-  //       tooltip: content.exportCSVTooltip,
-  //       clickFn: function () {
-  //         if (util.flightPlanPresent(drawnItems)) {
-  //           util.download('csv_IL2MPR_r' + EXPORT_REV + '.csv', util.csvConvert(exportMapToCSV()));
-  //         }
-  //       },
-  //     },
-  //     {
-  //       id: 'stream-button',
-  //       icon: 'fa-share-alt',
-  //       tooltip: content.streamTooltip,
-  //       clickFn: function () {
-  //         var template;
-  //         if (!state.streaming && !state.connected) {
-  //           template = content.streamModalTemplate;
-  //           fireStreamModal();
-  //         } else if (state.streaming && !state.connected) {
-  //           template = content.alreadyStreamingModalTemplate;
-  //           fireAlreadyStreamingModal();
-  //         } else if (!state.streaming && state.connected) {
-  //           template = content.alreadyConnectedModalTemplate;
-  //           fireAlreadyConnectedModal();
-  //         }
-  //         function fireStreamModal() {
-  //           if (conf.streaming === true) {
-  //             map.openModal({
-  //               template: template,
-  //               onShow: function (e) {
-  //                 document.getElementById('stream-start-button').focus();
-  //                 L.DomEvent.on(document.getElementById('stream-start-button'), 'click', function () {
-  //                   e.modal.hide();
-  //                   fireStartModal();
-  //                 });
-  //                 L.DomEvent.on(document.getElementById('stream-connect-button'), 'click', function () {
-  //                   e.modal.hide();
-  //                   fireConnectModal();
-  //                 });
-  //                 L.DomEvent.on(e.modal._container.querySelector('.modal-cancel'), 'click', function () {
-  //                   e.modal.hide();
-  //                 });
-  //               },
-  //             });
-  //           }
-  //         }
-  //         function fireStartModal() {
-  //           map.openModal({
-  //             template: content.startStreamModalTemplate,
-  //             onShow: function (e) {
-  //               document.getElementById('stream-start-confirm-button').focus();
-  //               L.DomEvent.on(document.getElementById('stream-start-confirm-button'), 'click', function () {
-  //                 var streamName = document.getElementById('stream-name').value;
-  //                 var streamPassword = document.getElementById('stream-password').value;
-  //                 var streamCode = document.getElementById('stream-leader-code').value;
-  //                 if (!streamName || !streamPassword || !streamCode) {
-  //                   var errorElement = document.getElementById('start-stream-error');
-  //                   errorElement.innerHTML = 'All fields are required. Try again.';
-  //                   util.removeClass(errorElement, 'hidden-section');
-  //                   return;
-  //                 }
-  //                 var mapState = window.escape(JSON.stringify(exportMapState()));
-  //                 var response = webdis.startStream(streamName, streamPassword, streamCode, mapState);
-  //                 if (response[0] !== 'SUCCESS') {
-  //                   var errorElement = document.getElementById('start-stream-error');
-  //                   errorElement.innerHTML = response[1];
-  //                   util.removeClass(errorElement, 'hidden-section');
-  //                   return;
-  //                 }
-  //                 state.streaming = true;
-  //                 util.addClass(document.querySelector('a.fa-share-alt'), 'streaming');
-  //                 state.streamInfo = {
-  //                   name: streamName,
-  //                   password: streamPassword,
-  //                   code: streamCode,
-  //                 };
-  //                 e.modal.hide();
-  //               });
-  //               L.DomEvent.on(e.modal._container.querySelector('.modal-cancel'), 'click', function () {
-  //                 e.modal.hide();
-  //               });
-  //             },
-  //           });
-  //         }
-  //         function fireConnectModal() {
-  //           map.openModal({
-  //             template: content.connectStreamModalTemplate,
-  //             onShow: function (e) {
-  //               var streamSelect = document.getElementById('stream-select');
-  //               var streams = webdis.getStreamList();
-  //               streamSelect.options.length = 0;
-  //               for (var i = 0; i < streams.length; i++) {
-  //                 streamSelect.options[i] = new Option(streams[i].substring(7), streams[i].substring(7));
-  //               }
-  //               setupCheckboxTogglableElement('leader-checkbox', 'leader-hidden');
-  //               document.getElementById('stream-connect-button').focus();
-  //               L.DomEvent.on(document.getElementById('stream-connect-button'), 'click', function () {
-  //                 var selectedStream = streamSelect.options[streamSelect.selectedIndex].value;
-  //                 var password = document.getElementById('stream-password').value;
-  //                 var code, response;
-  //                 var checkbox = document.getElementById('leader-checkbox');
-  //                 if (checkbox.checked) {
-  //                   if (V.fails('connect-form')) {
-  //                     var errorElement = document.getElementById('connect-stream-error');
-  //                     errorElement.innerHTML = 'Password and code are required to connect.';
-  //                     util.removeClass(errorElement, 'hidden-section');
-  //                     return;
-  //                   }
-  //                   code = document.getElementById('stream-code').value;
-  //                   response = webdis.getStreamReconnect(selectedStream, password, code);
-  //                   if (response[0] !== 'SUCCESS') {
-  //                     var errorElement = document.getElementById('connect-stream-error');
-  //                     errorElement.innerHTML = response[1];
-  //                     util.removeClass(errorElement, 'hidden-section');
-  //                     return;
-  //                   }
-  //                   state.streamInfo.code = code;
-  //                   clearMap();
-  //                   importMapState(JSON.parse(response[2]), false);
-  //                   state.streaming = true;
-  //                   util.addClass(document.querySelector('a.fa-share-alt'), 'streaming');
-  //                 } else {
-  //                   if (V.fails('connect-form')) {
-  //                     var errorElement = document.getElementById('connect-stream-error');
-  //                     errorElement.innerHTML = 'Password is required to connect.';
-  //                     util.removeClass(errorElement, 'hidden-section');
-  //                     return;
-  //                   }
-  //                   response = webdis.getStreamInfo(selectedStream, password);
-  //                   if (response[0] !== 'SUCCESS') {
-  //                     var errorElement = document.getElementById('connect-stream-error');
-  //                     errorElement.innerHTML = response[1];
-  //                     util.removeClass(errorElement, 'hidden-section');
-  //                     return;
-  //                   }
-  //                   webdis.subscribe(response[1]);
-  //                   clearMap();
-  //                   importMapState(JSON.parse(response[2]), false);
-  //                   state.connected = response[1];
-  //                   util.addClass(document.querySelector('a.fa-share-alt'), 'connected');
-  //                   startConnectedMode();
-  //                 }
-  //                 state.streamInfo = {
-  //                   name: selectedStream,
-  //                   password: password,
-  //                   code: code,
-  //                 };
-  //                 checkButtonsDisabled();
-  //                 e.modal.hide();
-  //               });
-  //               L.DomEvent.on(e.modal._container.querySelector('.modal-cancel'), 'click', function () {
-  //                 e.modal.hide();
-  //               });
-  //             },
-  //           });
-  //         }
-  //         function fireAlreadyConnectedModal() {
-  //           map.openModal({
-  //             streamName: state.streamInfo.name,
-  //             template: content.alreadyConnectedModalTemplate,
-  //             onShow: function (e) {
-  //               document.getElementById('disconnect-button').focus();
-  //               L.DomEvent.on(document.getElementById('disconnect-button'), 'click', function () {
-  //                 webdis.unsubscribe(state.connected);
-  //                 state.connected = false;
-  //                 util.removeClass(document.querySelector('a.fa-share-alt'), 'connected');
-  //                 endConnectedMode();
-  //                 e.modal.hide();
-  //               });
-  //               L.DomEvent.on(e.modal._container.querySelector('.modal-cancel'), 'click', function () {
-  //                 e.modal.hide();
-  //               });
-  //             },
-  //           });
-  //         }
-  //         function fireAlreadyStreamingModal() {
-  //           map.openModal({
-  //             streamName: state.streamInfo.name,
-  //             streamPassword: state.streamInfo.password,
-  //             streamCode: state.streamInfo.code,
-  //             template: content.alreadyStreamingModalTemplate,
-  //             onShow: function (e) {
-  //               document.getElementById('stop-streaming-button').focus();
-  //               setupCheckboxTogglableElement('already-streaming-checkbox', 'already-streaming-hidden');
-  //               L.DomEvent.on(document.getElementById('stop-streaming-button'), 'click', function () {
-  //                 e.modal.hide();
-  //                 state.streaming = false;
-  //                 util.removeClass(document.querySelector('a.fa-share-alt'), 'streaming');
-  //               });
-  //               L.DomEvent.on(e.modal._container.querySelector('.modal-cancel'), 'click', function () {
-  //                 e.modal.hide();
-  //               });
-  //             },
-  //           });
-  //         }
-  //       },
-  //     },
-  //   ],
-  // });
-  // map.addControl(importExportToolbar);
+              var styleSelect = document.getElementById('style-select');
+              var originalStyleValue = state.style;
+              styleSelect.value = originalStyleValue;
 
-  // var gridToolbar = new L.Control.CustomToolbar({
-  //   position: 'topleft',
-  //   buttons: [
-  //     {
-  //       id: 'gridhop-button',
-  //       icon: 'fa-th-large',
-  //       tooltip: content.gridHopTooltip,
-  //       clickFn: function () {
-  //         map.openModal({
-  //           template: content.gridJumpModalTemplate,
-  //           onShow: function (e) {
-  //             var gridElement = document.getElementById('grid-input');
-  //             gridElement.focus();
-  //             L.DomEvent.on(e.modal._container.querySelector('.modal-ok'), 'click', function () {
-  //               if (V.passes('grid-jump-form')) {
-  //                 var grid = gridElement.value;
-  //                 var viewLatLng = calc.gridLatLng(grid, mapConfig);
-  //                 map.flyTo(viewLatLng, mapConfig.gridHopZoom);
-  //                 e.modal.hide();
-  //               } else {
-  //                 var errorElement = document.getElementById('grid-jump-error');
-  //                 errorElement.innerHTML = 'Please input a valid four digit grid number.';
-  //                 util.removeClass(errorElement, 'hidden-section');
-  //                 errorElement.focus();
-  //               }
-  //             });
-  //             L.DomEvent.on(e.modal._container.querySelector('.modal-cancel'), 'click', function () {
-  //               e.modal.hide();
-  //             });
-  //           },
-  //         });
-  //       },
-  //     },
-  //     {
-  //       id: 'missionhop-button',
-  //       icon: 'fa-crop',
-  //       tooltip: content.missionHopTooltip,
-  //       clickFn: function () {
-  //         if (!mapIsEmpty()) {
-  //           fitViewToMission();
-  //         }
-  //       },
-  //     },
-  //   ],
-  // });
-  // map.addControl(gridToolbar);
+              var invertCheckbox = document.getElementById('invert-text-checkbox');
+              invertCheckbox.checked = state.colorsInverted;
+
+              var unitsSelect = document.getElementById('units-select');
+              var originalUnitValue = state.units;
+              unitsSelect.value = originalUnitValue;
+
+              var backgroundCheckbox = document.getElementById('text-background-checkbox');
+              backgroundCheckbox.checked = state.showBackground;
+              mapSelect.focus();
+
+              L.DomEvent.on(e.modal._container.querySelector('.modal-ok'), 'click', function () {
+                if (mapSelect.selectedIndex !== originalIndex) {
+                  var selectedMap = mapSelect.options[mapSelect.selectedIndex].value;
+                  mapConfig = content.maps[selectedMap];
+                  selectMap(mapConfig);
+                  selectedMapIndex = mapSelect.selectedIndex;
+                  publishMapState();
+                }
+                if (styleSelect.value !== originalStyleValue) {
+                  changeStyle(styleSelect.value);
+                }
+                if (unitsSelect.value !== originalUnitValue) {
+                  changeUnits(unitsSelect.value);
+                }
+                if (state.style === 'classic') {
+                  if (invertCheckbox.checked !== state.colorsInverted) {
+                    state.colorsInverted = invertCheckbox.checked;
+                    var textElements = document.getElementsByClassName('map-text');
+                    for (var i = 0; i < textElements.length; i++) {
+                      if (state.colorsInverted) {
+                        textElements[i].classList.add('inverted');
+                      } else {
+                        textElements[i].classList.remove('inverted');
+                      }
+                    }
+                  }
+                  if (backgroundCheckbox.checked !== state.showBackground) {
+                    state.showBackground = backgroundCheckbox.checked;
+                    var textElements = document.getElementsByClassName('map-text');
+                    for (var i = 0; i < textElements.length; i++) {
+                      if (state.showBackground) {
+                        textElements[i].classList.remove('nobg');
+                      } else {
+                        textElements[i].classList.add('nobg');
+                      }
+                    }
+                  }
+                }
+                e.modal.hide();
+              });
+              L.DomEvent.on(e.modal._container.querySelector('.modal-cancel'), 'click', function () {
+                e.modal.hide();
+              });
+            },
+          });
+        },
+      },
+      {
+        id: 'help-button',
+        icon: 'fa-question',
+        tooltip: content.helpTooltip,
+        clickFn: function () {
+          map.openModal({
+            template: content.helpModalTemplate,
+            onShow: function (e) {
+              L.DomEvent.on(e.modal._container.querySelector('.modal-ok'), 'click', function () {
+                e.modal.hide();
+              });
+            },
+          });
+        },
+      },
+    ],
+  });
+  map.addControl(helpSettingsToolbar);
+
+  var importExportToolbar = new L.Control.CustomToolbar({
+    position: 'bottomright',
+    buttons: [
+      {
+        id: 'import-button',
+        icon: 'fa-upload',
+        tooltip: content.importTooltip,
+        clickFn: function () {
+          map.openModal({
+            template: content.importModalTemplate,
+            onShow: function (e) {
+              var importInput = document.getElementById('import-file');
+              var importButton = document.getElementById('import-button');
+              var mergeCheckbox = document.getElementById('merge-checkbox');
+              importInput.focus();
+              var fileContent;
+              L.DomEvent.on(importInput, 'change', function (evt) {
+                var reader = new window.FileReader();
+                reader.onload = function (evt) {
+                  if (evt.target.readyState !== 2) {
+                    return;
+                  }
+                  if (evt.target.error) {
+                    window.alert('Error while reading file');
+                    return;
+                  }
+                  fileContent = evt.target.result;
+                };
+                reader.readAsText(evt.target.files[0]);
+              });
+              L.DomEvent.on(e.modal._container.querySelector('.modal-ok'), 'click', function () {
+                if (fileContent !== undefined) {
+                  var saveData = JSON.parse(fileContent);
+                  importMapState(saveData, mergeCheckbox.checked);
+                  e.modal.hide();
+                  fitViewToMission();
+                }
+              });
+              L.DomEvent.on(e.modal._container.querySelector('.modal-cancel'), 'click', function () {
+                e.modal.hide();
+              });
+            },
+            onHide: function () {
+              checkButtonsDisabled();
+            },
+          });
+        },
+      },
+      {
+        id: 'export-button',
+        icon: 'fa-download',
+        tooltip: content.exportTooltip,
+        clickFn: function () {
+          if (!mapIsEmpty()) {
+            util.download('plan_IL2MPR_r' + EXPORT_REV + '.json', JSON.stringify(exportMapState()));
+          }
+        },
+      },
+      {
+        id: 'summary-button',
+        icon: 'fa-list',
+        tooltip: content.summaryTooltip,
+        clickFn: function () {
+          if (util.flightPlanPresent(drawnItems)) {
+            map.openModal({
+              template: content.flightSummaryModalTemplate,
+              onShow: function (e) {
+                var text = document.getElementById('flight-summary');
+                text.innerHTML = '';
+                var summaryText = '';
+                drawnItems.eachLayer(function (layer) {
+                  if (layer instanceof L.Polyline && !(layer instanceof L.Polygon)) {
+                    if (layer.isFlightPlan) {
+                      summaryText += util.formatFlightSummary(layer, mapConfig, state.units);
+                    }
+                  }
+                });
+                text.innerHTML = summaryText;
+                e.modal.update();
+                L.DomEvent.on(e.modal._container.querySelector('.modal-ok'), 'click', function () {
+                  e.modal.hide();
+                });
+                L.DomEvent.on(e.modal._container.querySelector('.modal-print'), 'click', function () {
+                  var summaryPrint = window.open('', '', 'height=700, width=700');
+                  summaryPrint.document.write('<html>');
+                  summaryPrint.document.write('<body >');
+                  summaryPrint.document.write(summaryText);
+                  summaryPrint.document.write('</body></html>');
+                  summaryPrint.document.close();
+                  summaryPrint.print();
+                });
+              },
+            });
+          }
+        },
+      },
+      {
+        id: 'export-excel-button',
+        icon: 'fa-file-excel-o',
+        tooltip: content.exportCSVTooltip,
+        clickFn: function () {
+          if (util.flightPlanPresent(drawnItems)) {
+            util.download('csv_IL2MPR_r' + EXPORT_REV + '.csv', util.csvConvert(exportMapToCSV()));
+          }
+        },
+      },
+      {
+        id: 'stream-button',
+        icon: 'fa-share-alt',
+        tooltip: content.streamTooltip,
+        clickFn: function () {
+          var template;
+          if (!state.streaming && !state.connected) {
+            template = content.streamModalTemplate;
+            fireStreamModal();
+          } else if (state.streaming && !state.connected) {
+            template = content.alreadyStreamingModalTemplate;
+            fireAlreadyStreamingModal();
+          } else if (!state.streaming && state.connected) {
+            template = content.alreadyConnectedModalTemplate;
+            fireAlreadyConnectedModal();
+          }
+          function fireStreamModal() {
+            if (conf.streaming === true) {
+              map.openModal({
+                template: template,
+                onShow: function (e) {
+                  document.getElementById('stream-start-button').focus();
+                  L.DomEvent.on(document.getElementById('stream-start-button'), 'click', function () {
+                    e.modal.hide();
+                    fireStartModal();
+                  });
+                  L.DomEvent.on(document.getElementById('stream-connect-button'), 'click', function () {
+                    e.modal.hide();
+                    fireConnectModal();
+                  });
+                  L.DomEvent.on(e.modal._container.querySelector('.modal-cancel'), 'click', function () {
+                    e.modal.hide();
+                  });
+                },
+              });
+            }
+          }
+          function fireStartModal() {
+            map.openModal({
+              template: content.startStreamModalTemplate,
+              onShow: function (e) {
+                document.getElementById('stream-start-confirm-button').focus();
+                L.DomEvent.on(document.getElementById('stream-start-confirm-button'), 'click', function () {
+                  var streamName = document.getElementById('stream-name').value;
+                  var streamPassword = document.getElementById('stream-password').value;
+                  var streamCode = document.getElementById('stream-leader-code').value;
+                  if (!streamName || !streamPassword || !streamCode) {
+                    var errorElement = document.getElementById('start-stream-error');
+                    errorElement.innerHTML = 'All fields are required. Try again.';
+                    util.removeClass(errorElement, 'hidden-section');
+                    return;
+                  }
+                  var mapState = window.escape(JSON.stringify(exportMapState()));
+                  var response = webdis.startStream(streamName, streamPassword, streamCode, mapState);
+                  if (response[0] !== 'SUCCESS') {
+                    var errorElement = document.getElementById('start-stream-error');
+                    errorElement.innerHTML = response[1];
+                    util.removeClass(errorElement, 'hidden-section');
+                    return;
+                  }
+                  state.streaming = true;
+                  util.addClass(document.querySelector('a.fa-share-alt'), 'streaming');
+                  state.streamInfo = {
+                    name: streamName,
+                    password: streamPassword,
+                    code: streamCode,
+                  };
+                  e.modal.hide();
+                });
+                L.DomEvent.on(e.modal._container.querySelector('.modal-cancel'), 'click', function () {
+                  e.modal.hide();
+                });
+              },
+            });
+          }
+          function fireConnectModal() {
+            map.openModal({
+              template: content.connectStreamModalTemplate,
+              onShow: function (e) {
+                var streamSelect = document.getElementById('stream-select');
+                var streams = webdis.getStreamList();
+                streamSelect.options.length = 0;
+                for (var i = 0; i < streams.length; i++) {
+                  streamSelect.options[i] = new Option(streams[i].substring(7), streams[i].substring(7));
+                }
+                setupCheckboxTogglableElement('leader-checkbox', 'leader-hidden');
+                document.getElementById('stream-connect-button').focus();
+                L.DomEvent.on(document.getElementById('stream-connect-button'), 'click', function () {
+                  var selectedStream = streamSelect.options[streamSelect.selectedIndex].value;
+                  var password = document.getElementById('stream-password').value;
+                  var code, response;
+                  var checkbox = document.getElementById('leader-checkbox');
+                  if (checkbox.checked) {
+                    if (V.fails('connect-form')) {
+                      var errorElement = document.getElementById('connect-stream-error');
+                      errorElement.innerHTML = 'Password and code are required to connect.';
+                      util.removeClass(errorElement, 'hidden-section');
+                      return;
+                    }
+                    code = document.getElementById('stream-code').value;
+                    response = webdis.getStreamReconnect(selectedStream, password, code);
+                    if (response[0] !== 'SUCCESS') {
+                      var errorElement = document.getElementById('connect-stream-error');
+                      errorElement.innerHTML = response[1];
+                      util.removeClass(errorElement, 'hidden-section');
+                      return;
+                    }
+                    state.streamInfo.code = code;
+                    clearMap();
+                    importMapState(JSON.parse(response[2]), false);
+                    state.streaming = true;
+                    util.addClass(document.querySelector('a.fa-share-alt'), 'streaming');
+                  } else {
+                    if (V.fails('connect-form')) {
+                      var errorElement = document.getElementById('connect-stream-error');
+                      errorElement.innerHTML = 'Password is required to connect.';
+                      util.removeClass(errorElement, 'hidden-section');
+                      return;
+                    }
+                    response = webdis.getStreamInfo(selectedStream, password);
+                    if (response[0] !== 'SUCCESS') {
+                      var errorElement = document.getElementById('connect-stream-error');
+                      errorElement.innerHTML = response[1];
+                      util.removeClass(errorElement, 'hidden-section');
+                      return;
+                    }
+                    webdis.subscribe(response[1]);
+                    clearMap();
+                    importMapState(JSON.parse(response[2]), false);
+                    state.connected = response[1];
+                    util.addClass(document.querySelector('a.fa-share-alt'), 'connected');
+                    startConnectedMode();
+                  }
+                  state.streamInfo = {
+                    name: selectedStream,
+                    password: password,
+                    code: code,
+                  };
+                  checkButtonsDisabled();
+                  e.modal.hide();
+                });
+                L.DomEvent.on(e.modal._container.querySelector('.modal-cancel'), 'click', function () {
+                  e.modal.hide();
+                });
+              },
+            });
+          }
+          function fireAlreadyConnectedModal() {
+            map.openModal({
+              streamName: state.streamInfo.name,
+              template: content.alreadyConnectedModalTemplate,
+              onShow: function (e) {
+                document.getElementById('disconnect-button').focus();
+                L.DomEvent.on(document.getElementById('disconnect-button'), 'click', function () {
+                  webdis.unsubscribe(state.connected);
+                  state.connected = false;
+                  util.removeClass(document.querySelector('a.fa-share-alt'), 'connected');
+                  endConnectedMode();
+                  e.modal.hide();
+                });
+                L.DomEvent.on(e.modal._container.querySelector('.modal-cancel'), 'click', function () {
+                  e.modal.hide();
+                });
+              },
+            });
+          }
+          function fireAlreadyStreamingModal() {
+            map.openModal({
+              streamName: state.streamInfo.name,
+              streamPassword: state.streamInfo.password,
+              streamCode: state.streamInfo.code,
+              template: content.alreadyStreamingModalTemplate,
+              onShow: function (e) {
+                document.getElementById('stop-streaming-button').focus();
+                setupCheckboxTogglableElement('already-streaming-checkbox', 'already-streaming-hidden');
+                L.DomEvent.on(document.getElementById('stop-streaming-button'), 'click', function () {
+                  e.modal.hide();
+                  state.streaming = false;
+                  util.removeClass(document.querySelector('a.fa-share-alt'), 'streaming');
+                });
+                L.DomEvent.on(e.modal._container.querySelector('.modal-cancel'), 'click', function () {
+                  e.modal.hide();
+                });
+              },
+            });
+          }
+        },
+      },
+    ],
+  });
+  map.addControl(importExportToolbar);
+
+  var gridToolbar = new L.Control.CustomToolbar({
+    position: 'topleft',
+    buttons: [
+      {
+        id: 'gridhop-button',
+        icon: 'fa-th-large',
+        tooltip: content.gridHopTooltip,
+        clickFn: function () {
+          map.openModal({
+            template: content.gridJumpModalTemplate,
+            onShow: function (e) {
+              var gridElement = document.getElementById('grid-input');
+              gridElement.focus();
+              L.DomEvent.on(e.modal._container.querySelector('.modal-ok'), 'click', function () {
+                if (V.passes('grid-jump-form')) {
+                  var grid = gridElement.value;
+                  var viewLatLng = calc.gridLatLng(grid, mapConfig);
+                  map.flyTo(viewLatLng, mapConfig.gridHopZoom);
+                  e.modal.hide();
+                } else {
+                  var errorElement = document.getElementById('grid-jump-error');
+                  errorElement.innerHTML = 'Please input a valid four digit grid number.';
+                  util.removeClass(errorElement, 'hidden-section');
+                  errorElement.focus();
+                }
+              });
+              L.DomEvent.on(e.modal._container.querySelector('.modal-cancel'), 'click', function () {
+                e.modal.hide();
+              });
+            },
+          });
+        },
+      },
+      {
+        id: 'missionhop-button',
+        icon: 'fa-crop',
+        tooltip: content.missionHopTooltip,
+        clickFn: function () {
+          if (!mapIsEmpty()) {
+            fitViewToMission();
+          }
+        },
+      },
+    ],
+  });
+  map.addControl(gridToolbar);
 
   map.on('draw:created', function (e) {
     drawnItems.addLayer(e.layer);
