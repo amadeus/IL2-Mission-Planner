@@ -1,9 +1,7 @@
 {
   "name": "il2missionplanner-revived",
   "homepage": "https://github.com/serverror/il2missionplanner.com",
-  "authors": [
-    "Gavin Cabbage <gavincabbage@gmail.com>"
-  ],
+  "authors": ["Gavin Cabbage <gavincabbage@gmail.com>"],
   "description": "Il-2 Mission Planner",
   "main": "index.html",
   "moduleType": [],
