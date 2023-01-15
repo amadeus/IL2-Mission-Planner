@@ -32,5 +32,3 @@ Now configure your web host of choice to reverse proxy the webdis commands on th
 ### API Server
 
 You're mostly on your own here. It's not too hard to get the docker running, and after that you'd need to direct traffic between it and your map server. You may need to tweak your dockerhub images to something more recent or compatible with your server's architecture. I personally found it not worth it for the minimal functionality, and may reimplement it in a different way down the road.
-
-Tweak
