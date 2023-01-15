@@ -10,6 +10,8 @@
   require('./controls.js');
 
   var conf = JSON.parse(fs.readFileSync('dist/conf.json', 'utf8'));
+  const plan = JSON.parse(fs.readFileSync('dist/plan.json', 'utf8'));
+  console.log('ZZZZ - plan', plan);
 
   const EXPORT_REV = 2,
     RED = '#9A070B',
@@ -1210,7 +1212,6 @@
 */
   map = L.map('map', {
     crs: L.CRS.Simple,
-    //cursor: true, // Debugging
     attributionControl: false,
     zoomDelta: 0.25,
     zoomSnap: 0,
@@ -1857,5 +1858,6 @@
     checkButtonsDisabled();
   });
 
-  checkButtonsDisabled();
+  importMapState(plan, false);
+  fitViewToMission();
 })();
