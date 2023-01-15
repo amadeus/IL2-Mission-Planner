@@ -1215,6 +1215,7 @@
     attributionControl: false,
     zoomDelta: 0.25,
     zoomSnap: 0,
+    zoomControl: false,
   });
 
   mapTiles = L.tileLayer(mapConfig.tileUrl, {
