@@ -1,23 +1,22 @@
 var assert = require('chai').assert;
 
-var mockLeaflet = {}
+var mockLeaflet = {};
 var content = require('./content.js');
 
-describe('content', function() {
+describe('content', function () {
+  it('must be defined', function () {
+    assert.isDefined(content);
+  });
 
-    it('must be defined', function() {
-        assert.isDefined(content);
+  var tests = [
+    {
+      property: 'maps',
+    },
+  ];
+
+  tests.forEach(function (test) {
+    it("must have property '" + test.property + "'", function () {
+      assert.property(content, test.property);
     });
-
-    var tests = [
-        {
-            property: 'maps'
-        }
-    ];
-
-    tests.forEach(function(test) {
-        it('must have property \''+test.property+'\'', function() {
-            assert.property(content, test.property);
-        });
-    });
+  });
 });

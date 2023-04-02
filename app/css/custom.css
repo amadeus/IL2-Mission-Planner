@@ -1,243 +1,250 @@
 body {
-    padding: 0;
-    margin: 0;
+  padding: 0;
+  margin: 0;
+}
+
+* {
+  user-select: none;
 }
 
 fieldset {
-    border: 1px solid #D1D1D1;
-    border-radius: 4px;
+  border: 1px solid #d1d1d1;
+  border-radius: 4px;
 }
 
-fieldset, legend {
-    margin-left: 2%;
-    margin-bottom: 3%;
+fieldset,
+legend {
+  margin-left: 2%;
+  margin-bottom: 3%;
 }
 
-html, body, #map {
-    font-family: 'Courier New', Courier, monospace;
-    font-weight: 400;
-    height: 100%;
+html,
+body,
+#map {
+  font-family: 'Courier New', Courier, monospace;
+  font-weight: 400;
+  height: 100%;
 }
 
-html, body, h2 {
-    font-weight: 400;
+html,
+body,
+h2 {
+  font-weight: 400;
 }
 
 span.modal-icon {
-    font-size: 0.8em;
+  font-size: 0.8em;
 }
 
 div.title-control {
-    font-family: 'Garamond', Times, serif;
-    font-weight: 700;
-    font-size: 12pt;
+  font-family: 'Garamond', Times, serif;
+  font-weight: 700;
+  font-size: 12pt;
 }
 
 div.flight-leg {
-    font-weight: 700;
-    font-size: 1.0em;
+  font-weight: 700;
+  font-size: 1em;
 }
 
 div.flight-turn {
-    margin-left: -20px !important;
-    margin-top: 10px !important;
-    font-weight: 700;
-    font-size: 1.0em;
+  margin-left: -20px !important;
+  margin-top: 10px !important;
+  font-weight: 700;
+  font-size: 1em;
 }
 
 div.flight-start-alt {
-    margin-left: -20px !important;
-    margin-top: 22px !important;
-    font-weight: 700;
-    font-size: 1.0em;
+  margin-left: -20px !important;
+  margin-top: 22px !important;
+  font-weight: 700;
+  font-size: 1em;
 }
 
 div.map-text {
-    text-align: center;
-    height: unset !important;
-    width: unset;
-    color: #ffffff;
-    background: rgba(100, 100, 100, .75);
-    padding: 0 5px;
+  text-align: center;
+  height: unset !important;
+  width: unset;
+  color: #ffffff;
+  background: rgba(100, 100, 100, 0.75);
+  padding: 0 5px;
 }
 
 div.flight-leg.map-text {
-    width: 158px;
-    text-align: center;
+  width: 158px;
+  text-align: center;
 }
 
 div.flight-turn.map-text {
-    height: auto !important;
-    width: auto !important;
-    text-align: center;
+  height: auto !important;
+  width: auto !important;
+  text-align: center;
 }
 
 div.flight-start-alt.map-text {
-    height: auto !important;
-    width: auto !important;
-    text-align: center;
+  height: auto !important;
+  width: auto !important;
+  text-align: center;
 }
 
 div.map-text.inverted {
-    color: #000000;
+  color: #000000;
 }
 
 div.map-text:hover,
 div.map-text.inverted:hover {
-    color: #1B4FB1;
+  color: #1b4fb1;
 }
 
 div.map-text.nobg {
-    background: unset !important;
+  background: unset !important;
 }
 
 div.button-row {
-    margin-top: 5%;
+  margin-top: 5%;
 }
 
 div.map-title {
-    font-family: 'Courier', Courier, monospace;
-    font-weight: 700;
-    font-size: 1.2em;
-    text-align: center;
+  font-family: 'Courier', Courier, monospace;
+  font-weight: 700;
+  font-size: 1.2em;
+  text-align: center;
 }
 
 div.flight-title {
-    font-size: 1.5em;
+  font-size: 1.5em;
 }
 
 .text-path-flight-title {
-    font-size: 1.5em;
-    font-weight: 700;
+  font-size: 1.5em;
+  font-weight: 700;
 }
 
 div.target-title-cb {
-    margin-left: -85px !important;
-    margin-top: 20px !important;
-    font-family: monospace;
-    font-weight: 600;
-    font-size: 1.7em;
-    text-align: center;
-    line-height: 100%;
+  margin-left: -85px !important;
+  margin-top: 20px !important;
+  font-family: monospace;
+  font-weight: 600;
+  font-size: 1.7em;
+  text-align: center;
+  line-height: 100%;
 }
 
 div.target-title-classic {
-    margin-left: 18px !important;
-    font-size: 1.3em;
+  margin-left: 18px !important;
+  font-size: 1.3em;
 }
 
 div.target-title-classic-centered {
-    margin-left: -85px !important;
-    margin-top: 20px !important;
-    text-align: center;
-    font-size: 1.3em;
+  margin-left: -85px !important;
+  margin-top: 20px !important;
+  text-align: center;
+  font-size: 1.3em;
 }
 
 div.target-title-airfield {
-    margin-left: -85px !important;
-    margin-top: 20px !important;
-    text-align: center;
-    font-weight: 600;
-    font-size: 1.3em;
+  margin-left: -85px !important;
+  margin-top: 20px !important;
+  text-align: center;
+  font-weight: 600;
+  font-size: 1.3em;
 }
 
 h3.help-header {
-    font-size: 2.0rem;
-    text-align: right;
+  font-size: 2rem;
+  text-align: right;
 }
 
 .half-width {
-    width: 50%;
+  width: 50%;
 }
 
 .bold {
-    font-weight: 700;
+  font-weight: 700;
 }
 
 .summary {
-    font-weight: 600;
-    font-size: 1.1em;
+  font-weight: 600;
+  font-size: 1.1em;
 }
 
 a.streaming {
-    color: green;
+  color: green;
 }
 
 a.streaming:hover {
-    color: green;
+  color: green;
 }
 
 a.connected {
-    color: blue;
+  color: blue;
 }
 
 a.connected:hover {
-    color: blue;
+  color: blue;
 }
 
 a.stream-error {
-    color: #9A070B;
+  color: #9a070b;
 }
 
 a.stream-error:hover {
-    color: #9A070B;
+  color: #9a070b;
 }
 
 div.error-message {
-    display: block;
-    padding: 10px;
-    margin-bottom: 10px;
-    border-left: 5px solid #9A070B;
-    background-color: #FEE7E7;
-    color: #9A070B;
+  display: block;
+  padding: 10px;
+  margin-bottom: 10px;
+  border-left: 5px solid #9a070b;
+  background-color: #fee7e7;
+  color: #9a070b;
 }
 
 div.hidden-section {
-    display: none;
+  display: none;
 }
 
 label.checkbox-label {
-    font-weight: 400;
+  font-weight: 400;
 }
 
 button.button-primary {
-    background-color: #9A070B;
-    border-color: #9A070B;
+  background-color: #9a070b;
+  border-color: #9a070b;
 }
 
 button.button-primary:hover,
 button.button-primary:focus {
-    background-color: #DB0A11;
-    border-color: #DB0A11;
+  background-color: #db0a11;
+  border-color: #db0a11;
 }
 
 img.modal-image {
-    max-height: 100%;
-    max-width: 100% !important;
+  max-height: 100%;
+  max-width: 100% !important;
 }
 
 .popup {
-    pointer-events: none;
+  pointer-events: none;
 }
 
 #point-type-select {
-    margin-left: 0%;
+  margin-left: 0%;
 }
 
 #already-streaming-hidden {
-    margin-top: 14px;
+  margin-top: 14px;
 }
 
-@media(max-width: 1600px) {
-
-    div.flight-leg {
-        font-size: 1.0em;
-    }
-
+@media (max-width: 1600px) {
+  div.flight-leg {
+    font-size: 1em;
+  }
 }
 
-@media(max-width: 400px) {
-    div.title-control {
-        max-width: 260px;
-    }
+@media (max-width: 400px) {
+  div.title-control {
+    max-width: 260px;
+  }
 }
