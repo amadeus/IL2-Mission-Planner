@@ -1,41 +1,41 @@
 /* Unset spritesheet and replace with fontawesome icons */
 
 .leaflet-draw-toolbar a {
-    background-position: unset;
-    background-image: none !important;
+  background-position: unset;
+  background-image: none !important;
 }
 
 .leaflet-retina .leaflet-draw-toolbar a {
-    background-position: unset;
-    background-image: none !important;
+  background-position: unset;
+  background-image: none !important;
 }
 
 .leaflet-draw-draw-polyline:before {
-    content: "\f072"; /* fa-plane */
-    font-family: FontAwesome;
+  content: '\f072'; /* fa-plane */
+  font-family: FontAwesome;
 }
 
 .leaflet-draw-draw-circle:before {
-    content: "\f111"; /* fa-circle */
-    font-family: FontAwesome;
+  content: '\f111'; /* fa-circle */
+  font-family: FontAwesome;
 }
 
 .leaflet-draw-draw-polygon:before {
-    content: "\f006"; /* fa-polygon */
-    font-family: FontAwesome;
+  content: '\f006'; /* fa-polygon */
+  font-family: FontAwesome;
 }
 
 .leaflet-draw-draw-marker:before {
-    content: "\f041"; /* fa-map-marker */
-    font-family: FontAwesome;
+  content: '\f041'; /* fa-map-marker */
+  font-family: FontAwesome;
 }
 
 .leaflet-draw-edit-edit:before {
-    content: "\f044"; /* fa-edit */
-    font-family: FontAwesome;
+  content: '\f044'; /* fa-edit */
+  font-family: FontAwesome;
 }
 
 .leaflet-draw-edit-remove:before {
-    content: "\f12d"; /* fa-eraser */
-    font-family: FontAwesome;
+  content: '\f12d'; /* fa-eraser */
+  font-family: FontAwesome;
 }

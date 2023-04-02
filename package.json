@@ -24,10 +24,11 @@
     "jshint": "^2.12.0",
     "livereload": "^0.9.1",
     "mocha": "^8.3.0",
+    "prettier": "^2.8.3",
+    "serve": "^13.0.2",
     "uglify-js": "^3.12.8",
     "watch-run": "^1.2.5",
-    "xhr-mock": "^1.6.0",
-    "serve": "^13.0.2"
+    "xhr-mock": "^1.6.0"
   },
   "scripts": {
     "coverage": "./node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha app/js/**/*.test.js",
@@ -44,7 +45,8 @@
     "copy:img": "mkdir -p dist/img; cp app/img/dist/* dist/img/",
     "copy:html": "cp app/index.html dist/index.html",
     "copy:conf": "cp conf/conf.json dist/conf.json",
-    "copy": "mkdir -p dist && npm run copy:vendor && npm run copy:img && npm run copy:html && npm run copy:conf",
+    "copy:json": "cp plan.json dist/plan.json",
+    "copy": "mkdir -p dist && npm run copy:vendor && npm run copy:img && npm run copy:html && npm run copy:conf && npm run copy:json",
     "dist:js:dev": "npm run lint && npm test && npm run browserify:dev",
     "dist:js": "npm run lint && npm test && npm run browserify && npm run uglify",
     "dist:dev": "npm run copy && npm run dist:js:dev && npm run dist:css",
