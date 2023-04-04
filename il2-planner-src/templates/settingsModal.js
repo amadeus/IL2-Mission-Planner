@@ -1,0 +1,77 @@
+export default `<div id="settings-modal" class="container">
+    <div class="row">
+        <h2><span class='fa fa-gear modal-icon'></span> Settings</h2>
+    </div>
+    <form id="settings-form" onsubmit="return false;">
+        <fieldset>
+            <legend>Select Map</legend>
+            <div class="row">
+                <div class="one column"></div>
+                <select class="eleven columns" id="map-select">
+                    <option value="stalingrad">Stalingrad</option>
+                    <option value="moscow">Moscow</option>
+                    <option value="luki">Velikie Luki</option>
+                    <option value="kuban">Kuban</option>
+                    <option value="rheinland">Rheinland</option>
+                    <option value="arras">Arras</option>
+                    <option value="prokhorovka">Prokhorovka</option>
+                    <option value="normandy">Normandy</option>
+                    <option value="normandy_early">Normandy_Early</option>
+                    <option value="lapino">Lapino</option>
+                    <option value="novosokolniki">Novosokolniki</option>
+                    <option value="western_front">Western Front</option>
+                </select>
+            </div>
+        </fieldset>
+
+        <fieldset>
+            <legend>Units of Measurement</legend>
+            <div class="row">
+                <div class="one column"></div>
+                <select class="eleven columns" id="units-select">
+                    <option value="metric">Metric</option>
+                    <option value="imperial">Imperial</option>
+                </select>
+            </div>
+        </fieldset>
+
+        <fieldset>
+            <legend>Map Text</legend>
+            <div class="row">
+                <div class="one column"></div>
+                <div class="eleven columns">
+                    <label class="" for="selectStyle">Style (Changes will trigger a reload, save first)</label>
+                </div>
+                <select class="eleven columns" id="style-select">
+                    <option value="cb">CB</option>
+                    <option value="classic">Classic</option>
+                </select>
+            </div>
+            <fieldset>
+                <legend>Classic Style Settings</legend>
+                <div class="row">
+                    <div class="one column"></div>
+                    <div class="three columns">
+                        <label class="" for="invertText">Dark</label>
+                    </div>
+                    <div class="eight columns">
+                        <input id="invert-text-checkbox" type="checkbox" name="invertText">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="one column"></div>
+                    <div class="three columns">
+                        <label class="" for="showBackground">Background</label>
+                    </div>
+                    <div class="eight columns">
+                        <input id="text-background-checkbox" type="checkbox" name="showBackground" value="inverted">
+                    </div>
+                </div>
+            </fieldset>
+        </fieldset>
+        <div class="row button-row">
+            <button class="modal-ok button-primary" type="submit">Okay</button>
+            <button class="modal-cancel">Cancel</button>
+        </div>
+    </form>
+</div>`;

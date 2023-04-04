@@ -1,0 +1,17 @@
+export default `<div id="flight-turn-modal" class="container">
+    <div class="row">
+        <h2><span class='fa fa-plane modal-icon'></span> Flight Turn Point</h2>
+    </div>
+    <div id="flight-turn-error" class="row error-message hidden-section">
+    </div>
+    <form name="flight-turn-form" id="flight-turn-form" onsubmit="return false;">
+        <div class="row">
+            <label class="" for="flight-altitude">Altitude (m/ft)</label>
+            <input id="flight-turn-altitude" name="flight-turn-altitude" class="half-width" value="{altitude}"></input>
+        </div>
+        <div class="row buttom-row">
+            <button class="modal-ok button-primary" type="submit">Okay</button>
+            <button class="modal-cancel" type="button">Cancel</button>
+        </div>
+    </form>
+</div>`;

@@ -14,12 +14,18 @@
   },
   "homepage": "https://github.com/serverror/il2missionplanner.com#readme",
   "devDependencies": {
+    "@types/node": "18.15.11",
+    "@types/react": "18.0.32",
+    "@typescript-eslint/eslint-plugin": "^5.57.0",
+    "@typescript-eslint/parser": "^5.57.0",
     "bower": "^1.8.12",
     "brfs": "^2.0.2",
     "browserify": "^17.0.0",
     "chai": "^4.3.0",
     "clean-css": "^3.4.12",
     "concurrently": "^5.3.0",
+    "eslint": "^8.37.0",
+    "eslint-plugin-react": "^7.32.2",
     "istanbul": "^0.4.5",
     "jshint": "^2.12.0",
     "livereload": "^0.9.1",
@@ -63,6 +69,25 @@
     "develop": "npm run clean && npm run dist:dev && concurrently \"npm run watch:conf\" \"npm run watch:css\" \"npm run watch:index\" \"npm run watch:js\" \"npm run watch:html\" \"npm run watch:img\" \"npm run reload\" \"serve dist\"",
     "dist:css": "cleancss -o dist/index.css app/css/index.css",
     "nodist": "npm run lint && npm test",
-    "reload": "livereload ./dist/"
+    "reload": "livereload ./dist/",
+    "/": "NextJS shenanigans",
+    "next-dev": "next dev",
+    "next-build": "next build",
+    "next-start": "next start",
+    "next-lint": "next lint"
+  },
+  "dependencies": {
+    "eslint-config-next": "13.2.4",
+    "font-awesome": "4.7.0",
+    "leaflet-defaulticon-compatibility": "^0.1.1",
+    "leaflet-draw": "1.0.4",
+    "leaflet-geosearch": "^3.7.0",
+    "leaflet-modal": "0.2.0",
+    "leaflet-polylinedecorator": "1.6.0",
+    "leaflet-textpath": "^1.2.3",
+    "next": "13.2.4",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "validatinator": "2.0.8"
   }
 }

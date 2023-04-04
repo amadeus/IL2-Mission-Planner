@@ -1,0 +1,7 @@
+{
+  "apiUrl": "NONE",
+  "serverUrl": "https://www.example.com",
+  "tilesUrl": "https://serverror.github.io/IL2-Mission-Planner/tiles",
+  "streaming": false,
+  "webdisUrl": "https://www.example.com/WEBDIS"
+}
